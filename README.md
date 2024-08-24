@@ -1,5 +1,10 @@
 # vscode-ts-ai-assistant
 
+## 链接
+
+- [github仓库](https://github.com/lsby/vscode-ts-ai-assistant)
+- [vscode商店](https://marketplace.visualstudio.com/items?itemName=hbybyyang.lsby-vscode-ts-ai-assistant)
+
 ## 概述
 
 一个vscode插件, 可以通过函数的类型和说明, 生成AI提示词, 调用AI, 并将AI生成的代码快速应用到代码中.
