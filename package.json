@@ -1,0 +1,149 @@
+{
+  "name": "lsby-vscode-ts-ai-assistant",
+  "displayName": "TypeScript AI 助手",
+  "version": "0.0.0",
+  "description": "通过函数签名和说明生成AI提示词并调用和应用",
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lsby/vscode-ts-ai-assistant"
+  },
+  "license": "GPL-3.0-or-later",
+  "publisher": "hbybyyang",
+  "main": "./dist/extension.js",
+  "scripts": {
+    "check:all": "npm run check:format && npm run check:lint && npm run check:type",
+    "check:format": "prettier --write .",
+    "check:lint": "eslint . --fix",
+    "check:type": "tsc --noEmit",
+    "check:type:watch": "tsc --noEmit -w",
+    "vscode:prepublish": "npm run package",
+    "vscode:package": "npm run check:all && npm run package && bumpp && vsce package",
+    "vscode:publish": "vsce publish",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:web": "vite build -c src/web/vite.config/config.js",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "test": "vscode-test",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --ext ts"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "lsby-vscode-ts-ai-assistant.helloWorld",
+        "title": "lsby-vscode-ts-ai-assistant: Hello World"
+      },
+      {
+        "command": "lsby-vscode-ts-ai-assistant.genCode",
+        "title": "lsby-vscode-ts-ai-assistant: 生成代码"
+      },
+      {
+        "command": "lsby-vscode-ts-ai-assistant.genPrompt",
+        "title": "lsby-vscode-ts-ai-assistant: 生成提示"
+      }
+    ],
+    "configuration": {
+      "title": "TypeScript AI 助手",
+      "properties": {
+        "lsby-vscode-ts-ai-assistant.baseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com",
+          "description": "使用的AI服务地址"
+        },
+        "lsby-vscode-ts-ai-assistant.apiKey": {
+          "type": "string",
+          "description": "使用的apiKey"
+        },
+        "lsby-vscode-ts-ai-assistant.modelName": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "模型名称"
+        },
+        "lsby-vscode-ts-ai-assistant.systemPromptCharacter": {
+          "type": "string",
+          "default": "AI助手",
+          "description": "AI角色提示词",
+          "enum": [
+            "AI助手",
+            "猫娘老婆",
+            "雌小鬼",
+            "傲娇美少女"
+          ]
+        },
+        "lsby-vscode-ts-ai-assistant.systemPromptCustom": {
+          "type": "string",
+          "description": "自定义的AI角色提示词(更优先)"
+        },
+        "lsby-vscode-ts-ai-assistant.otherPrompt": {
+          "type": "string",
+          "default": "",
+          "description": "生成代码时的补充说明"
+        }
+      }
+    },
+    "views": {
+      "lsby-vscode-ts-ai-assistant-sidebar-containers": [
+        {
+          "type": "webview",
+          "id": "lsby-vscode-ts-ai-assistant-sidebar",
+          "name": "lsby-vscode-ts-ai-assistant"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "lsby-vscode-ts-ai-assistant-sidebar-containers",
+          "title": "TypeScript AI 助手",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
+  },
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
+  "dependencies": {
+    "openai": "^4.56.0",
+    "uuid": "^10.0.0",
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
+    "@lsby/eslint-config": "^0.1.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.92.0",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.11.0",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "@vitest/coverage-v8": "^2.0.2",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0",
+    "bumpp": "^9.4.1",
+    "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.4",
+    "npm-run-all": "^4.1.5",
+    "open-cli": "^8.0.0",
+    "prettier": "3.2.5",
+    "prettier-plugin-packagejson": "^2.5.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.2"
+  },
+  "packageManager": "npm@10.8.2",
+  "engines": {
+    "vscode": "^1.92.0"
+  }
+}

@@ -1,0 +1,21 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- AI 字体 -->
+  <text x="5" y="40" font-family="Arial" font-size="50" fill="black">AI</text>
+  <!-- TS 字体 -->
+  <text x="60" y="120" font-family="Arial" font-size="50" fill="black">TS</text>
+
+  <!-- 箭头从 AI 指向 TS -->
+  <line x1="60" y1="20" x2="90" y2="20" stroke="black" stroke-width="2" />
+  <line x1="90" y1="20" x2="90" y2="55" stroke="black" stroke-width="2" marker-end="url(#arrowhead)" />
+
+  <!-- 箭头从 TS 指向 AI -->
+  <line x1="60" y1="100" x2="25" y2="100" stroke="black" stroke-width="2" />
+  <line x1="25" y1="100" x2="25" y2="65" stroke="black" stroke-width="2" marker-end="url(#arrowhead)" />
+
+  <!-- 定义箭头样式 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="auto" fill="black">
+      <polygon points="0 0, 10 5, 0 10" />
+    </marker>
+  </defs>
+</svg>
