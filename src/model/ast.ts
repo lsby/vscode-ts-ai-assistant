@@ -152,8 +152,8 @@ export class 函数节点 extends 节点 {
     super(函数节点, 类型检查器, tsconfig路径)
   }
 
-  获得函数名称(): string | undefined {
-    return this.函数节点.name?.getText()
+  获得函数名称(): string | null {
+    return this.函数节点.name?.getText() || null
   }
   获得函数泛型参数(): string {
     var typeParameters = this.函数节点.typeParameters?.map((param) => param.getText()).join(', ') || ''
@@ -264,17 +264,17 @@ export class 类节点 extends 节点 {
     super(类节点, 类型检查器, tsconfig路径)
   }
 
-  获得名称(): string | undefined {
-    return this.类节点.name?.getText()
+  获得名称(): string | null {
+    return this.类节点.name?.getText() || null
   }
-  获得构造函数(): { name: string; args: { name: string; type: 类型 }[] | undefined }[] {
+  获得构造函数(): { name: string; args: { name: string; type: 类型 }[] | null }[] {
     return this.类节点.members
       .filter((成员) => ts.isConstructorDeclaration(成员))
       .map((成员) => {
         var name = 'constructor'
 
         var 签名 = this.类型检查器.getSignatureFromDeclaration(成员)
-        if (签名 == null) return { name, args: undefined }
+        if (签名 == null) return { name, args: null }
 
         var 参数类型们 = 签名.parameters
           .map((参数) => {
@@ -291,7 +291,7 @@ export class 类节点 extends 节点 {
         return { name, args: 参数类型们 }
       })
   }
-  获得方法们(): { name: string | undefined; func: 函数节点 }[] {
+  获得方法节点们(): { name: string | null; func: 函数节点 }[] {
     return this.类节点.members
       .filter((成员) => ts.isMethodDeclaration(成员))
       .map((成员) => {
@@ -300,7 +300,7 @@ export class 类节点 extends 节点 {
         return { name, func }
       })
   }
-  获得属性们(): { name: string | undefined; type: 类型 }[] {
+  获得属性类型们(): { name: string | null; type: 类型 }[] {
     return this.类节点.members
       .filter((成员) => ts.isPropertyDeclaration(成员))
       .map((成员) => {
@@ -309,7 +309,7 @@ export class 类节点 extends 节点 {
         return { name, type }
       })
   }
-  获得父类(): 节点 | undefined {
+  获得父类(): 节点 | null {
     if (this.类节点.heritageClauses) {
       for (var clause of this.类节点.heritageClauses) {
         if (clause.token == ts.SyntaxKind.ExtendsKeyword) {
@@ -318,7 +318,7 @@ export class 类节点 extends 节点 {
         }
       }
     }
-    return undefined
+    return null
   }
   获得实现接口们(): 节点[] {
     if (this.类节点.heritageClauses) {
@@ -329,6 +329,13 @@ export class 类节点 extends 节点 {
       }
     }
     return []
+  }
+
+  获得类范围(): { start: number; end: number } {
+    return { start: this.类节点.getStart(), end: this.类节点.getEnd() }
+  }
+  获得方法(name: string): 函数节点 | null {
+    return this.获得方法节点们().filter((a) => a.name == name)[0]?.func || null
   }
 }
 
@@ -370,20 +377,20 @@ export class 类型 {
     }
     return 结果 || this.获得名称()
   }
-  获得路径(): string | undefined {
+  获得路径(): string | null {
     var 类型定义 = this.获得定义()
-    if (!类型定义) return undefined
+    if (!类型定义) return null
 
     if (ts.isClassDeclaration(类型定义) || ts.isInterfaceDeclaration(类型定义) || ts.isTypeAliasDeclaration(类型定义)) {
       return path.relative(this.tsconfig路径, 类型定义.getSourceFile().fileName)
     }
 
-    return undefined
+    return null
   }
 
-  获得定义(): ts.Declaration | undefined {
+  获得定义(): ts.Declaration | null {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    return this.类型.aliasSymbol?.declarations?.[0] || this.类型.symbol?.declarations?.[0] || undefined
+    return this.类型.aliasSymbol?.declarations?.[0] || this.类型.symbol?.declarations?.[0] || null
   }
 
   获得所有相关类型(已访问类型: Array<类型> = new Array<类型>()): 类型[] {
