@@ -35,6 +35,22 @@ export class 自定义代码动作提供程序 implements vscode.CodeActionProvi
     }
     代码动作.push(仅生成提示词)
 
+    var 调用AI_带实现 = new vscode.CodeAction('调用AI(带实现)', vscode.CodeActionKind.QuickFix)
+    调用AI_带实现.command = {
+      command: `${全局变量.插件名称}.genCodeBody`,
+      title: '调用AI(带实现)',
+      arguments: [函数名, 文件路径],
+    }
+    代码动作.push(调用AI_带实现)
+
+    var 仅生成提示词_带实现 = new vscode.CodeAction('仅生成提示词(带实现)', vscode.CodeActionKind.QuickFix)
+    仅生成提示词_带实现.command = {
+      command: `${全局变量.插件名称}.genPromptBody`,
+      title: '仅生成提示词(带实现)',
+      arguments: [函数名, 文件路径],
+    }
+    代码动作.push(仅生成提示词_带实现)
+
     return 代码动作
   }
 }

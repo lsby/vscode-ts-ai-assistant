@@ -8,7 +8,7 @@ import { 侧边栏视图提供者 } from './web-view'
 export async function helloWrold(): Promise<void> {
   void vscode.window.showInformationMessage(`Hello World!`)
 }
-async function 计算提示词(函数名: string, 文件路径: string): Promise<string> {
+async function 计算提示词(函数名: string, 文件路径: string, 带body: boolean): Promise<string> {
   var tsconfig文件路径 = await 获得tsconfig文件路径()
   if (!tsconfig文件路径) {
     void vscode.window.showInformationMessage('没有找到tsconfig文件')
@@ -61,6 +61,8 @@ async function 计算提示词(函数名: string, 文件路径: string): Promise
     ...过滤类型信息(非空结果).map(
       (a) => `- 在 ${a.类型位置} 定义的 ${a.类型名称}: ${a.类型实现.replaceAll('\n', '\\n')}`,
     ),
+    结果.函数实现 && 带body ? '这个函数目前的实现是(可能是错误的):' : null,
+    结果.函数实现 && 带body ? 结果.函数实现.replaceAll('\n', '\\n') : null,
     '',
     '请不要在函数头或尾加注释, 不要写其他的函数, 只能编写这一个函数.',
     全局变量.配置.otherPrompt ? 全局变量.配置.otherPrompt : null,
@@ -75,13 +77,25 @@ async function 计算提示词(函数名: string, 文件路径: string): Promise
 }
 export async function genCode(函数名: string, 文件路径: string): Promise<void> {
   await vscode.commands.executeCommand('workbench.action.files.save')
-  var 提示词 = await 计算提示词(函数名, 文件路径)
+  var 提示词 = await 计算提示词(函数名, 文件路径, false)
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
 }
 export async function genPrompt(函数名: string, 文件路径: string): Promise<void> {
   await vscode.commands.executeCommand('workbench.action.files.save')
-  var 提示词 = await 计算提示词(函数名, 文件路径)
+  var 提示词 = await 计算提示词(函数名, 文件路径, false)
+  var 侧边栏实例 = 侧边栏视图提供者.获得实例()
+  await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
+}
+export async function genCodeBody(函数名: string, 文件路径: string): Promise<void> {
+  await vscode.commands.executeCommand('workbench.action.files.save')
+  var 提示词 = await 计算提示词(函数名, 文件路径, true)
+  var 侧边栏实例 = 侧边栏视图提供者.获得实例()
+  await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
+}
+export async function genPromptBody(函数名: string, 文件路径: string): Promise<void> {
+  await vscode.commands.executeCommand('workbench.action.files.save')
+  var 提示词 = await 计算提示词(函数名, 文件路径, true)
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
 }
