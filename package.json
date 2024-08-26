@@ -1,7 +1,7 @@
 {
   "name": "lsby-vscode-ts-ai-assistant",
   "displayName": "TypeScript AI 助手",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "通过函数签名和说明生成AI提示词并调用和应用",
   "categories": [
     "Other"
