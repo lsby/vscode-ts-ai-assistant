@@ -164,7 +164,13 @@ export class 函数节点 extends 节点 {
     var 类型 = this.获得函数类型()
     var 泛型参数 = this.获得函数泛型参数()
     var 字符串泛型参数 = 泛型参数 == '' ? '' : `<${this.获得函数泛型参数()}>`
-    return `function ${名称}${字符串泛型参数}${类型.获得名称()}`
+
+    var 有导出标志: boolean = false
+    if (ts.isFunctionDeclaration(this.函数节点) && this.函数节点.modifiers) {
+      有导出标志 = this.函数节点.modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
+    }
+
+    return `${有导出标志 ? 'export ' : ''}function ${名称}${字符串泛型参数}${类型.获得名称()}`
   }
   获得函数完整实现(): string {
     return this.函数节点.getText()
