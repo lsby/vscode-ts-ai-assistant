@@ -7,7 +7,7 @@ import { 获得函数形式签名 } from './func-node.js'
  * 计算给定类型节点的字符串表示
  * - 对于类型节点是类的情况, 需要依次解析它的 构造函数, 属性, 方法 等元素的类型, 凑出不含实现的类的定义
  *   - 对于属性, 直接getText即可
- *   - 对于构造函数, 注意构造函数的参数中可能带有private等修饰词
+ *   - 对于构造函数, 它的参数可以直接由getText获得
  *   - 对于方法, 可以使用 {@link 获得函数形式签名} 获得其签名
  * - 对于类型节点是其他情况, 只需要getText即可
  */
@@ -22,7 +22,7 @@ export function 获得类型实现(类型节点: 类型节点, 类型检查器: 
 
     if (构造函数) {
       const 参数 = 构造函数.parameters.map((param) => param.getText()).join(', ')
-      结果 += `  constructor(${参数}) {}\n`
+      结果 += `  constructor(${参数})\n`
     }
 
     属性.forEach((attr) => {
