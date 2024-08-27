@@ -23,7 +23,7 @@ export function 是类类型(类型: ts.Type): boolean {
 export function 获得类型名称(类型: ts.Type, 类型检查器: ts.TypeChecker): string {
   return 类型检查器.typeToString(类型)
 }
-export function 获得类型位置(类型: ts.Type): string | null {
+export function 获得类型所在文件(类型: ts.Type): string | null {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   var 定义 = 类型.aliasSymbol?.declarations?.[0] || 类型.symbol?.declarations?.[0] || null
   if (!定义) return null

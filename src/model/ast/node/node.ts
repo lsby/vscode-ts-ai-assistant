@@ -16,7 +16,7 @@ export type jsdoc结果 = {
  * - 函数名称: 指的是引用的函数实际的名称
  * - 函数位置: 指的是定义这个函数的文件的完整路径
  */
-export function 获得节点jsdoc说明(函数节点: 节点, 类型检查器: ts.TypeChecker): jsdoc结果 | null {
+export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: ts.TypeChecker): jsdoc结果 | null {
   var jsdoc = ts.getJSDocCommentsAndTags(函数节点)
   var 评论们 = jsdoc[0]?.comment
   if (jsdoc.length == 0 || 评论们 == null) return null
@@ -77,7 +77,7 @@ export function 获得节点jsdoc说明(函数节点: 节点, 类型检查器: t
  * 递归分析相关的函数引用
  * 将所有相关的函数和对应的内部名称组成数组返回
  * 需要注意处理循环引用造成的无限循环问题
- * 通过 {@link 获得节点jsdoc说明} 可以获得函数的jsdoc部分
+ * 通过 {@link 获得节点jsdoc结果} 可以获得函数的jsdoc部分
  * 通过 {@link 按路径选择源文件} 可以由给定路径获得源文件
  * 通过 {@link 通过名称获得函数节点} 可以从源文件查找给定名称的函数
  */
@@ -116,7 +116,11 @@ export function 获得节点jsdoc关联的所有函数(
   节点: 节点,
   类型检查器: ts.TypeChecker,
 ): Array<{ 内部名称: string; 函数: 节点 }> {
-  const jsdoc = 获得节点jsdoc说明(节点, 类型检查器)
+  const jsdoc = 获得节点jsdoc结果(节点, 类型检查器)
   if (!jsdoc) return []
   return 从jsdoc结果分析所有关联的函数(程序, 类型检查器, jsdoc)
+}
+
+export function 获得节点范围(节点: 节点, 源文件?: ts.SourceFile): { start: number; end: number } {
+  return { start: 节点.getStart(源文件), end: 节点.getEnd() }
 }

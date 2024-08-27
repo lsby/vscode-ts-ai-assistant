@@ -67,6 +67,23 @@ export function 获得所有类型节点(源文件: ts.SourceFile): Record<strin
 }
 
 /**
+ * 可以使用 {@link 获得所有顶层节点}
+ * 其中Recode的key是类名称
+ */
+export function 获得所有类节点(源文件: ts.SourceFile): Record<string, ts.ClassDeclaration> {
+  const 顶层节点们 = 获得所有顶层节点(源文件)
+  const 类节点记录: Record<string, ts.ClassDeclaration> = {}
+
+  顶层节点们.forEach((节点) => {
+    if (ts.isClassDeclaration(节点) && 节点.name) {
+      类节点记录[节点.name.text] = 节点
+    }
+  })
+
+  return 类节点记录
+}
+
+/**
  * 查找当前文件的所有引入, 找到定义在node_modeule里的类型引入
  * 我们可以去获得引入的符号的声明的位置, 然后判断位置是否在node_modeule里
  */
@@ -80,7 +97,7 @@ export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查�
     if (引入符号 && 引入符号.declarations && 引入符号.declarations[0]) {
       const 引入声明信息 = 类型检查器.getTypeOfSymbolAtLocation(引入符号, 引入符号.declarations[0])
       const 引入位置 = 引入声明信息.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
-      if (引入位置 && 引入位置.includes('node_modules')) {
+      if (引入位置 && (引入位置.includes('..\\node_modules') || 引入位置.includes('../node_modules'))) {
         引入数组.push({ 路径: 引入位置, 名称: 引入模块名称 })
       }
     }
