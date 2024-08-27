@@ -156,6 +156,7 @@ window.addEventListener('message', async (event) => {
       v_输入框数据.value = data.data
       await nextTick()
       await v_adjustHeight()
+      v_输入框部分滚动条滚到底部()
       return
     }
     case '设置输入框并发送': {
@@ -176,9 +177,7 @@ onMounted(async () => (v_输入框HTML元素.value ? v_adjustHeight() : null))
 watch(v_输入框数据, async () => v_adjustHeight())
 watch(v_对话, async () => {
   await nextTick()
-  if (v_滚动条在底部.value && v_滚动区域HTML元素.value) {
-    v_滚动区域HTML元素.value.scrollTop = v_滚动区域HTML元素.value.scrollHeight
-  }
+  v_对话部分滚动条滚到底部()
 })
 
 async function 发送AI调用() {
@@ -219,6 +218,14 @@ function 生成v对话(对话: 对话): v_对话类型[] {
   return [当前节点, ...生成v对话(下一跳)]
 }
 
+function v_对话部分滚动条滚到底部() {
+  if (v_滚动条在底部.value && v_滚动区域HTML元素.value) {
+    v_滚动区域HTML元素.value.scrollTop = v_滚动区域HTML元素.value.scrollHeight
+  }
+}
+function v_输入框部分滚动条滚到底部() {
+  if (v_输入框HTML元素.value) v_输入框HTML元素.value.scrollTop = v_输入框HTML元素.value.scrollHeight
+}
 async function v_刷新v对话() {
   v_对话.value = 生成v对话(对话根节点)
 }
@@ -329,12 +336,12 @@ var v_handleEnter = async (event: KeyboardEvent) => {
       v_输入框数据.value = v_输入框数据.value.substring(0, start) + '\n' + v_输入框数据.value.substring(end)
       await nextTick()
       存在的输入框元素.selectionStart = 存在的输入框元素.selectionEnd = start + 1
-      if (v_输入框HTML元素.value) v_输入框HTML元素.value.scrollTop = v_输入框HTML元素.value.scrollHeight
+      v_输入框部分滚动条滚到底部()
       await v_adjustHeight()
     } else if (event.key == 'Enter') {
       await v_sendMessage()
       await nextTick()
-      if (v_滚动区域HTML元素.value) v_滚动区域HTML元素.value.scrollTop = v_滚动区域HTML元素.value.scrollHeight
+      v_对话部分滚动条滚到底部()
       await v_adjustHeight()
     }
   }
