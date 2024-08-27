@@ -65,3 +65,25 @@ export function 获得所有类型节点(源文件: ts.SourceFile): Record<strin
 
   return 类型节点
 }
+
+/**
+ * 查找当前文件的所有引入, 找到定义在node_modeule里的类型引入
+ * 我们可以去获得引入的符号的声明的位置, 然后判断位置是否在node_modeule里
+ */
+export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查器: ts.TypeChecker): { 路径: string; 名称: string }[] {
+  const 引入数组: { 路径: string; 名称: string }[] = []
+  const 引入声明 = 源文件.statements.filter(ts.isImportDeclaration)
+
+  for (const 引入声明项 of 引入声明) {
+    const 引入模块名称 = 引入声明项.moduleSpecifier.getText()
+    const 引入符号 = 类型检查器.getSymbolAtLocation(引入声明项.moduleSpecifier)
+    if (引入符号 && 引入符号.declarations && 引入符号.declarations[0]) {
+      const 引入声明信息 = 类型检查器.getTypeOfSymbolAtLocation(引入符号, 引入符号.declarations[0])
+      const 引入位置 = 引入声明信息.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
+      if (引入位置 && 引入位置.includes('node_modules')) {
+        引入数组.push({ 路径: 引入位置, 名称: 引入模块名称 })
+      }
+    }
+  }
+  return 引入数组
+}
