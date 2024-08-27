@@ -200,3 +200,7 @@ export function 获得函数区域(函数节点: ts.FunctionDeclaration): { star
   const 结束位置 = 函数节点.getEnd()
   return { start: 开始位置, end: 结束位置 }
 }
+
+export function 获得函数完整字符串(函数节点: ts.FunctionDeclaration): string {
+  return 函数节点.getText()
+}
