@@ -191,3 +191,12 @@ export function 获得函数jsdoc关联的所有函数(
 
   return 结果
 }
+
+/**
+ * 获得函数在文件中的开始位置和结束位置
+ */
+export function 获得函数区域(函数节点: ts.FunctionDeclaration): { start: number; end: number } {
+  const 开始位置 = 函数节点.getStart()
+  const 结束位置 = 函数节点.getEnd()
+  return { start: 开始位置, end: 结束位置 }
+}

@@ -2,8 +2,9 @@ import path from 'path'
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import * as vscode from 'vscode'
 import { 全局变量 } from './global/global'
+import { 获得函数区域, 通过名称获得函数节点 } from './model/ast/node/func-node'
+import { 创建程序, 按路径选择源文件, 获得类型检查器 } from './model/ast/program'
 import { 我的OpenAI } from './model/openai'
-import { 项目管理器 } from './model/project'
 import { 获得tsconfig文件路径, 获得函数名 } from './tools/tools'
 import { 自定义代码动作提供程序 } from './vscode/action'
 import { genCode, genPrompt, helloWrold } from './vscode/command'
@@ -67,41 +68,41 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         }
 
         var document = editor.document
-
-        var tsconfig文件路径 = await 获得tsconfig文件路径()
-        if (!tsconfig文件路径) {
-          void vscode.window.showInformationMessage('没有找到tsconfig文件')
-          throw new Error('没有找到tsconfig文件')
-        }
-
-        var 存在的tsconfig文件路径 = tsconfig文件路径
-        var 项目: 项目管理器 = new 项目管理器(tsconfig文件路径)
-
-        await 项目.初始化()
-
-        var 相对文件路径 = path.relative(存在的tsconfig文件路径, document.uri.fsPath)
+        var 文件路径 = document.uri.fsPath
         var 函数名 = 获得函数名(document.lineAt(editor.selection.active.line).text)
         if (!函数名) {
           void vscode.window.showInformationMessage('无法解析函数名')
           throw new Error('无法解析函数名')
         }
 
-        var 结果 = 项目.获得函数信息(相对文件路径, 函数名)
-        if (!结果) {
-          void vscode.window.showInformationMessage('无法找到函数定义')
-          throw new Error('无法找到函数定义')
+        const tsconfig文件路径 = await 获得tsconfig文件路径()
+        if (!tsconfig文件路径) {
+          void vscode.window.showInformationMessage('没有找到tsconfig文件')
+          throw new Error('没有找到tsconfig文件')
         }
 
-        var start = 结果.函数文件内位置.start
-        var end = 结果.函数文件内位置.end
+        const 程序 = 创建程序(tsconfig文件路径)
+        const 类型检查器 = 获得类型检查器(程序)
 
+        const 源文件 = 按路径选择源文件(文件路径, 程序)
+        if (!源文件) {
+          void vscode.window.showInformationMessage('无法找到源文件')
+          throw new Error('无法找到源文件')
+        }
+
+        const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 函数名)
+        if (!函数节点) {
+          void vscode.window.showInformationMessage('无法找到函数')
+          throw new Error('无法找到函数')
+        }
+
+        var { start, end } = 获得函数区域(函数节点)
         var range = new vscode.Range(document.positionAt(start), document.positionAt(end))
         var newText = message.data
 
         await editor.edit((editBuilder) => {
           editBuilder.replace(range, newText)
         })
-
         await vscode.commands.executeCommand('workbench.action.files.save')
 
         return

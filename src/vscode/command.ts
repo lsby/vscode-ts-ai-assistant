@@ -34,10 +34,16 @@ async function 计算提示词(函数名: string, 文件路径: string): Promise
   const 所有源文件 = 获得源文件们(程序)
 
   const 源文件 = 按路径选择源文件(文件路径, 程序)
-  if (!源文件) throw new Error('无法找到源文件')
+  if (!源文件) {
+    void vscode.window.showInformationMessage('无法找到源文件')
+    throw new Error('无法找到源文件')
+  }
 
   const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 函数名)
-  if (!函数节点) throw new Error('无法找到函数')
+  if (!函数节点) {
+    void vscode.window.showInformationMessage('无法找到函数')
+    throw new Error('无法找到函数')
+  }
 
   const 所有类型 = 所有源文件
     .filter((a) => !是dts文件(a))

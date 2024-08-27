@@ -12,7 +12,7 @@ export function 是dts文件(源文件: ts.SourceFile): boolean {
 export function 获得文件路径(a: ts.SourceFile): string {
   return a.fileName
 }
-export function 获得全部文本(a: ts.SourceFile): string {
+export function 获得源文件内容(a: ts.SourceFile): string {
   return a.getFullText()
 }
 /**
