@@ -58,8 +58,8 @@ export function 获得所有类型节点(源文件: ts.SourceFile): Record<strin
   const 类型节点: Record<string, 类型节点> = {}
 
   for (const 节点 of 顶层节点) {
-    if (ts.isTypeAliasDeclaration(节点) || ts.isInterfaceDeclaration(节点)) {
-      类型节点[节点.name.getText()] = 节点
+    if (ts.isTypeAliasDeclaration(节点) || ts.isInterfaceDeclaration(节点) || ts.isClassDeclaration(节点)) {
+      if (节点.name) 类型节点[节点.name.getText()] = 节点
     }
   }
 

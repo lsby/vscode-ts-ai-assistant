@@ -52,7 +52,7 @@ async function 计算提示词(函数名: string, 文件路径: string, 包含�
     .reduce((s, a) => Object.assign(s, a), {})
   const 所有类型信息 = Object.values(所有类型).map((a) => ({
     位置: 获得类型定义位置(a),
-    实现: 获得类型实现(a),
+    实现: 获得类型实现(a, 类型检查器),
     名称: 获得类型名称(获得类型节点类型(a, 类型检查器), 类型检查器),
   }))
 
@@ -84,10 +84,9 @@ async function 计算提示词(函数名: string, 文件路径: string, 包含�
       位置: 获得类型位置(a),
     }))
 
-    let 相交的类型信息 = 所有类型信息.filter((a) => {
-      return 相关类型信息.some((b) => a.位置 == b.位置 && a.名称 == b.名称)
-    })
-    相交的类型信息 = 相交的类型信息.map((a) => ({ ...a, 位置: path.relative(存在的tsconfig文件路径, a.位置) }))
+    const 相交的类型信息 = 所有类型信息
+      .filter((a) => 相关类型信息.some((b) => a.位置 == b.位置 && a.名称 == b.名称))
+      .map((a) => ({ ...a, 位置: path.relative(存在的tsconfig文件路径, a.位置) }))
 
     return { 函数名称, 内部名称, 函数形式签名, 函数实际签名, 函数说明, 函数实现, 相交的类型信息 }
   }
@@ -108,7 +107,7 @@ async function 计算提示词(函数名: string, 文件路径: string, 包含�
   }
 
   const 提示词 = [
-    '我想写一个typescript的函数, 请帮我实现它:',
+    '请帮我写一个typescript函数:',
     ...生成提示词片段(输入函数信息),
     包含实现 ? `  - 现在的实现是(可能是错的): ${压缩为一行(输入函数信息.函数实现)}` : null,
     引用函数.length != 0

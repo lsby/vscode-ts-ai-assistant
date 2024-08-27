@@ -32,7 +32,7 @@ export function 获得函数名称(函数节点: 函数节点): string {
   return 函数名称
 }
 
-export function 获得函数实际签名(函数节点: ts.FunctionDeclaration, 类型检查器: ts.TypeChecker): string {
+export function 获得函数实际签名(函数节点: 函数节点, 类型检查器: ts.TypeChecker): string {
   const 函数类型 = 类型检查器.getTypeAtLocation(函数节点)
   return 类型检查器.typeToString(函数类型)
 }
@@ -40,7 +40,7 @@ export function 获得函数实际签名(函数节点: ts.FunctionDeclaration, �
 /**
  * 可以使用 {@link 解析引用类型名称}
  */
-export function 获得函数形式签名(函数节点: 函数节点, 类型检查器: ts.TypeChecker): string {
+export function 获得函数形式签名(函数节点: 函数节点, 类型检查器: ts.TypeChecker, 包含前缀: boolean = true): string {
   const 函数名称 = 函数节点.name ? 函数节点.name.getText() : '匿名函数'
   const 签名 = 类型检查器.getSignatureFromDeclaration(函数节点)
   const 参数签名 = 签名
@@ -75,9 +75,9 @@ export function 获得函数形式签名(函数节点: 函数节点, 类型检�
   const 是否默认导出 =
     ts.getModifiers(函数节点)?.some((修饰符) => 修饰符.kind === ts.SyntaxKind.DefaultKeyword) || false
 
-  const 前缀 = 是否导出 ? (是否默认导出 ? 'export default function' : 'export function') : 'function'
+  const 前缀 = 是否导出 ? (是否默认导出 ? 'export default function ' : 'export function ') : 'function '
 
-  return `${前缀} ${函数名称}${泛型参数}(${参数签名}): ${返回类型签名}`
+  return `${包含前缀 ? 前缀 : ''}${函数名称}${泛型参数}(${参数签名}): ${返回类型签名}`
 }
 
 /**
@@ -161,10 +161,10 @@ export function 获得函数jsdoc说明(
  */
 export function 获得函数jsdoc关联的所有函数(
   程序: ts.Program,
-  函数节点: ts.FunctionDeclaration,
+  函数节点: 函数节点,
   类型检查器: ts.TypeChecker,
-): Array<{ 内部名称: string; 函数: ts.FunctionDeclaration }> {
-  const 结果: Array<{ 内部名称: string; 函数: ts.FunctionDeclaration }> = []
+): Array<{ 内部名称: string; 函数: 函数节点 }> {
+  const 结果: Array<{ 内部名称: string; 函数: 函数节点 }> = []
   const 已处理函数: Set<string> = new Set()
   const 函数jsdoc = 获得函数jsdoc说明(函数节点, 类型检查器)
 
@@ -195,12 +195,12 @@ export function 获得函数jsdoc关联的所有函数(
 /**
  * 获得函数在文件中的开始位置和结束位置
  */
-export function 获得函数区域(函数节点: ts.FunctionDeclaration): { start: number; end: number } {
+export function 获得函数区域(函数节点: 函数节点): { start: number; end: number } {
   const 开始位置 = 函数节点.getStart()
   const 结束位置 = 函数节点.getEnd()
   return { start: 开始位置, end: 结束位置 }
 }
 
-export function 获得函数完整字符串(函数节点: ts.FunctionDeclaration): string {
+export function 获得函数完整字符串(函数节点: 函数节点): string {
   return 函数节点.getText()
 }
