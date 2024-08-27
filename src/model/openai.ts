@@ -43,13 +43,13 @@ export class 我的OpenAI {
     }
   }
 
-  async chatSync(opt: ChatOpt): Promise<string | undefined> {
+  async chatSync(opt: ChatOpt): Promise<string | null> {
     try {
       var response = await this.openai.chat.completions.create({
         model: opt.model,
         messages: opt.messages,
       })
-      return response.choices[0]?.message?.content?.trim()
+      return response.choices[0]?.message?.content?.trim() || null
     } catch (error) {
       throw error
     }
