@@ -2,10 +2,11 @@ import ts from 'typescript'
 import { 按路径选择源文件 } from '../program'
 import { 节点 } from '../types/types'
 import { 通过名称获得函数节点 } from './func-node'
+import { 通过名称获得类型节点 } from './type-node'
 
 export type jsdoc结果 = {
   评论文本: string
-  引用的函数: { 内部名称: string; 函数名称: string; 函数位置: string }[]
+  引用: { 内部名称: string; 定义名称: string; 位置: string }[]
 }
 
 /**
@@ -13,8 +14,8 @@ export type jsdoc结果 = {
  * 获得其中的评论和评论中引用的函数(暂不支持解析引用的类型)
  * 其中:
  * - 内部名称: 指的是在jsdoc中实际写的名称
- * - 函数名称: 指的是引用的函数实际的名称
- * - 函数位置: 指的是定义这个函数的文件的完整路径
+ * - 定义名称: 指的是引用的实体实际的名称
+ * - 位置: 指的是定义这个实体的文件的完整路径
  */
 export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: ts.TypeChecker): jsdoc结果 | null {
   var jsdoc = ts.getJSDocCommentsAndTags(函数节点)
@@ -22,7 +23,7 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
   if (jsdoc.length == 0 || 评论们 == null) return null
 
   var 文本结果 = ''
-  var 引用: { 内部名称: string; 函数名称: string; 函数位置: string }[] = []
+  var 引用: { 内部名称: string; 定义名称: string; 位置: string }[] = []
 
   if (typeof 评论们 == 'string') {
     文本结果 = 评论们
@@ -49,17 +50,23 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
             if (文件路径 == null) return null
             导入的符号位置 = 文件路径
           }
-        } else if (声明 && ts.isFunctionDeclaration(声明)) {
+        } else if (
+          声明 &&
+          (ts.isFunctionDeclaration(声明) ||
+            ts.isTypeAliasDeclaration(声明) ||
+            ts.isInterfaceDeclaration(声明) ||
+            ts.isClassDeclaration(声明))
+        ) {
           导入的符号名称 = 声明.name?.getText() || null
           导入的符号位置 = 声明.getSourceFile().fileName
         }
 
         if (导入的符号名称 && 导入的符号位置) {
           var 重复检查 = 引用.find((a) => {
-            return a.内部名称 == 字符串表示 && a.函数名称 == 导入的符号名称 && a.函数位置 == 导入的符号位置
+            return a.内部名称 == 字符串表示 && a.定义名称 == 导入的符号名称 && a.位置 == 导入的符号位置
           })
           if (!重复检查) {
-            引用.push({ 内部名称: 字符串表示, 函数名称: 导入的符号名称, 函数位置: 导入的符号位置 })
+            引用.push({ 内部名称: 字符串表示, 定义名称: 导入的符号名称, 位置: 导入的符号位置 })
           }
         }
         文本结果 += 字符串表示
@@ -69,7 +76,7 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
     }
   }
 
-  return { 评论文本: 文本结果, 引用的函数: 引用 }
+  return { 评论文本: 文本结果, 引用: 引用 }
 }
 
 /**
@@ -77,32 +84,41 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
  * 递归分析相关的函数引用
  * 将所有相关的函数和对应的内部名称组成数组返回
  * 需要注意处理循环引用造成的无限循环问题
- * 通过 {@link 获得节点jsdoc结果} 可以获得函数的jsdoc部分
+ * 通过 {@link 获得节点jsdoc结果} 可以获得节点的jsdoc部分
  * 通过 {@link 按路径选择源文件} 可以由给定路径获得源文件
  * 通过 {@link 通过名称获得函数节点} 可以从源文件查找给定名称的函数
+ * 通过 {@link 通过名称获得类型节点} 可以从源文件查找给定名称的类型
  */
-export function 从jsdoc结果分析所有关联的函数(
+export function 从jsdoc结果分析所有关联的节点(
   程序: ts.Program,
   类型检查器: ts.TypeChecker,
   jsdoc: jsdoc结果,
-): Array<{ 内部名称: string; 函数: 节点 }> {
-  const 结果: Array<{ 内部名称: string; 函数: 节点 }> = []
-  const 已处理函数: Set<string> = new Set()
+): Array<{ 内部名称: string; 节点: 节点 }> {
+  const 结果: Array<{ 内部名称: string; 节点: 节点 }> = []
+  const 已处理项: Set<string> = new Set()
 
-  for (const 引用的函数 of jsdoc.引用的函数) {
-    const { 内部名称, 函数名称 } = 引用的函数
+  for (const 引用项 of jsdoc.引用) {
+    const { 内部名称, 定义名称 } = 引用项
 
-    if (已处理函数.has(函数名称)) {
+    if (已处理项.has(定义名称)) {
       continue
     }
 
-    const 源文件 = 按路径选择源文件(引用的函数.函数位置, 程序)
+    const 源文件 = 按路径选择源文件(引用项.位置, 程序)
     if (源文件) {
-      const 被引用函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 函数名称)
-      if (被引用函数节点) {
-        已处理函数.add(函数名称)
-        结果.push({ 内部名称, 函数: 被引用函数节点 })
-        const 内部结果 = 获得节点jsdoc关联的所有函数(程序, 被引用函数节点, 类型检查器)
+      const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 定义名称)
+      if (函数节点) {
+        已处理项.add(定义名称)
+        结果.push({ 内部名称, 节点: 函数节点 })
+        const 内部结果 = 获得节点jsdoc关联的所有节点(程序, 函数节点, 类型检查器)
+        结果.push(...内部结果)
+      }
+
+      const 类型节点 = 通过名称获得类型节点(源文件, 定义名称)
+      if (类型节点) {
+        已处理项.add(定义名称)
+        结果.push({ 内部名称, 节点: 类型节点 })
+        const 内部结果 = 获得节点jsdoc关联的所有节点(程序, 类型节点, 类型检查器)
         结果.push(...内部结果)
       }
     }
@@ -111,14 +127,14 @@ export function 从jsdoc结果分析所有关联的函数(
   return 结果
 }
 
-export function 获得节点jsdoc关联的所有函数(
+export function 获得节点jsdoc关联的所有节点(
   程序: ts.Program,
   节点: 节点,
   类型检查器: ts.TypeChecker,
-): Array<{ 内部名称: string; 函数: 节点 }> {
+): Array<{ 内部名称: string; 节点: 节点 }> {
   const jsdoc = 获得节点jsdoc结果(节点, 类型检查器)
   if (!jsdoc) return []
-  return 从jsdoc结果分析所有关联的函数(程序, 类型检查器, jsdoc)
+  return 从jsdoc结果分析所有关联的节点(程序, 类型检查器, jsdoc)
 }
 
 export function 获得节点范围(节点: 节点, 源文件?: ts.SourceFile): { start: number; end: number } {
