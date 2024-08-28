@@ -58,6 +58,11 @@ export function 获得所有相关类型(类型: ts.Type, 类型检查器: ts.Ty
           添加类型(类型检查器.getTypeOfSymbolAtLocation(v, 声明))
         }
       })
+      if (子类型.symbol.valueDeclaration && ts.isClassDeclaration(子类型.symbol.valueDeclaration)) {
+        子类型.symbol.valueDeclaration.members.forEach((v) => {
+          添加类型(类型检查器.getTypeAtLocation(v))
+        })
+      }
       子类型.aliasSymbol?.members?.forEach((v) => {
         var 声明 = v.getDeclarations()?.[0]
         if (声明) {
