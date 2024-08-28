@@ -42,7 +42,7 @@ export type 函数信息 = 函数基础信息 & {
   相关函数: 函数信息[]
 }
 
-function 计算引用(
+export function 计算引用(
   程序: ts.Program,
   类型检查器: ts.TypeChecker,
   引用: { 内部名称: string | null; 定义名称: string; 位置: string }[],
@@ -72,7 +72,7 @@ function 计算引用(
 
   return { 相关类型, 相关函数 }
 }
-function 处理类型节点(
+export function 处理类型节点(
   程序: ts.Program,
   类型检查器: ts.TypeChecker,
   节点: 类型节点,
@@ -117,17 +117,17 @@ function 处理函数节点(
   const 函数实际签名 = 获得函数实际签名(节点, 类型检查器)
   const 函数实现 = 获得函数完整字符串(节点)
 
-  const 函数相关类型 = 获得所有相关类型(获得函数节点类型(节点, 类型检查器), 类型检查器)
+  const 相关类型信息 = 获得所有相关类型(获得函数节点类型(节点, 类型检查器), 类型检查器)
     .map((a) => {
       var 位置 = 获得类型所在文件(a)
       if (位置 == null) return null
       return { 内部名称: null, 定义名称: 获得类型名称(a, 类型检查器), 位置: 位置 }
     })
     .filter((a) => a != null)
-  var 函数相关引用 = 计算引用(程序, 类型检查器, 函数相关类型)
+  var 相关引用 = 计算引用(程序, 类型检查器, 相关类型信息)
 
-  const 相关类型: 类型信息[] = [...函数相关引用.相关类型]
-  const 相关函数: 函数信息[] = [...函数相关引用.相关函数]
+  const 相关类型: 类型信息[] = [...相关引用.相关类型]
+  const 相关函数: 函数信息[] = [...相关引用.相关函数]
   if (jsdoc) {
     var jsdoc结果 = 计算引用(程序, 类型检查器, jsdoc.引用, 已处理的类型节点, 已处理的函数节点)
     相关类型.push(...jsdoc结果.相关类型)
