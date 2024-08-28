@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { 全局变量 } from '../global/global'
-import { 匹配函数名, 匹配类, 匹配类方法 } from '../tools/tools'
+import { 匹配函数名, 匹配类, 匹配类方法名称 } from '../tools/tools'
 
 export class 自定义代码动作提供程序 implements vscode.CodeActionProvider {
   public provideCodeActions(
@@ -52,7 +52,7 @@ export class 自定义代码动作提供程序 implements vscode.CodeActionProvi
       代码动作.push(生成优化函数提示词)
     }
 
-    var 类方法名 = 匹配类方法(起点行)
+    var 类方法名 = 匹配类方法名称(起点行)
     if (类方法名) {
       var 零点偏移 = 文档.offsetAt(范围.start)
 

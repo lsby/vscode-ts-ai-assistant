@@ -15,10 +15,10 @@ export function 匹配函数名(a: string): string | null {
   return a.match(/function (.*?)[<\(]/)?.[1] || null
 }
 
-export function 匹配类方法(输入字符串: string): string | null {
+export function 匹配类方法名称(输入字符串: string): string | null {
   var 确保不是函数 = 匹配函数名(输入字符串)
   if (确保不是函数 != null) return null
-  const 正则表达式 = /(?:public|private|protected|static)\s+(.*?)\s*\(/u
+  const 正则表达式 = /(?:public|private|protected|static)?\s*([^()\s]+)\s*\(/u
   const 匹配结果 = 输入字符串.match(正则表达式)
   return 匹配结果 ? 匹配结果[1] || null : null
 }

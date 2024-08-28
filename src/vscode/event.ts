@@ -7,7 +7,7 @@ import { 通过名称获得函数节点 } from '../model/ast/node/func-node'
 import { 获得节点范围 } from '../model/ast/node/node'
 import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../model/ast/program'
 import { 我的OpenAI } from '../model/openai'
-import { 匹配函数名, 匹配类, 匹配类方法, 获得tsconfig文件路径 } from '../tools/tools'
+import { 匹配函数名, 匹配类, 匹配类方法名称, 获得tsconfig文件路径 } from '../tools/tools'
 import { 侧边栏视图提供者 } from './web-view'
 
 export async function 初始化事件监听(): Promise<void> {
@@ -89,7 +89,7 @@ export async function 初始化事件监听(): Promise<void> {
           await vscode.commands.executeCommand('workbench.action.files.save')
         }
 
-        var 类方法名 = 匹配类方法(起点行)
+        var 类方法名 = 匹配类方法名称(起点行)
         if (类方法名) {
           const tsconfig文件路径 = await 获得tsconfig文件路径()
           if (!tsconfig文件路径) {
