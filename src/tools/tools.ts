@@ -17,10 +17,12 @@ export function 匹配函数名(a: string): string | null {
 /**
  * 这个函数将会接收源代码的一行
  * 我们需要通过正则匹配这一行是否是类的方法, 若是, 提取其中的方法名
- * 匹配的方法是, 空格+(方法名)+前括号
+ * 匹配的方法是, 同时匹配 空格+(方法名)+前括号
  * 注意, 其中的方法名, 参数名可能是中文, 所以不要用w匹配
  */
 export function 匹配类方法(输入字符串: string): string | null {
+  var 确保不是函数 = 匹配函数名(输入字符串)
+  if (确保不是函数 != null) return null
   const 正则表达式 = /\s+([\p{L}]+)\s*\(/u
   const 匹配结果 = 输入字符串.match(正则表达式)
   return 匹配结果 ? 匹配结果[1] || null : null
