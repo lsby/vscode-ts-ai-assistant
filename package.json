@@ -41,14 +41,6 @@
       {
         "command": "lsby-vscode-ts-ai-assistant.helloWorld",
         "title": "lsby-vscode-ts-ai-assistant: Hello World"
-      },
-      {
-        "command": "lsby-vscode-ts-ai-assistant.genCode",
-        "title": "lsby-vscode-ts-ai-assistant: 生成代码"
-      },
-      {
-        "command": "lsby-vscode-ts-ai-assistant.genPrompt",
-        "title": "lsby-vscode-ts-ai-assistant: 生成提示"
       }
     ],
     "configuration": {

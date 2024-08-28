@@ -1,22 +1,29 @@
 import path from 'path'
 import ts from 'typescript'
 
-export function 是函数类型(类型: ts.Type, 类型检查器: ts.TypeChecker): boolean {
-  if (类型检查器.getSignaturesOfType(类型, ts.SignatureKind.Call)[0]) {
-    return true
-  }
-  return false
-}
 export function 是引用类型(类型: ts.Type): boolean {
   if (类型.flags & ts.TypeFlags.Object && (类型 as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference) {
     return true
   }
   return false
 }
+export function 是函数类型(类型: ts.Type, 类型检查器: ts.TypeChecker): boolean {
+  if (类型检查器.getSignaturesOfType(类型, ts.SignatureKind.Call)[0]) {
+    return true
+  }
+  return false
+}
+export function 是类类型(类型: ts.Type): boolean {
+  if (类型.flags & ts.TypeFlags.Object && (类型 as ts.ObjectType).objectFlags & ts.ObjectFlags.Class) {
+    return true
+  }
+  return false
+}
+
 export function 获得类型名称(类型: ts.Type, 类型检查器: ts.TypeChecker): string {
   return 类型检查器.typeToString(类型)
 }
-export function 获得类型位置(类型: ts.Type): string | null {
+export function 获得类型所在文件(类型: ts.Type): string | null {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   var 定义 = 类型.aliasSymbol?.declarations?.[0] || 类型.symbol?.declarations?.[0] || null
   if (!定义) return null
