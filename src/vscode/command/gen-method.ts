@@ -8,7 +8,12 @@ import { 获得所有相关类型, 获得类型名称, 获得类型所在文件 
 import { 压缩为一行, 获得tsconfig文件路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 import { 函数信息, 类型信息, 计算引用 } from './gen-func'
 
-export async function 计算类方法提示词(起始位置: number, 方法名: string, 文件路径: string): Promise<string> {
+export async function 计算类方法提示词(
+  起始位置: number,
+  方法名: string,
+  文件路径: string,
+  要求: string,
+): Promise<string> {
   const tsconfig文件路径 = await 获得tsconfig文件路径()
   if (!tsconfig文件路径) {
     void vscode.window.showInformationMessage('没有找到tsconfig文件')
@@ -57,7 +62,7 @@ export async function 计算类方法提示词(起始位置: number, 方法名: 
 
   var 提示词 = [
     `在typescript中, 我有一个类.`,
-    `请帮我实现或优化其中的'${方法名}'方法.`,
+    `请对于'${方法名}'进行: ${要求}.`,
     类说明 ? `- 它的说明是: ${压缩为一行(类说明)}` : null,
     `- 它的完整定义是:`,
     `  - ${压缩为一行(类完整定义)}`,
