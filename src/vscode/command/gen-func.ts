@@ -161,7 +161,12 @@ function 铺平引用结果(相关类型: 类型信息[], 相关函数: 函数�
   return { 类型: [...本层类型, ...子结果.类型], 函数: [...本层函数, ...子结果.函数] }
 }
 
-export async function 计算函数提示词(函数名: string, 文件路径: string, 包含实现: boolean): Promise<string> {
+export async function 计算函数提示词(
+  函数名: string,
+  文件路径: string,
+  包含实现: boolean,
+  要求: string | null,
+): Promise<string> {
   const tsconfig文件路径 = await 获得tsconfig文件路径()
   if (!tsconfig文件路径) {
     void vscode.window.showInformationMessage('没有找到tsconfig文件')
@@ -194,8 +199,8 @@ export async function 计算函数提示词(函数名: string, 文件路径: str
   const 头引入 = 获得文件外部引用(源文件, 类型检查器)
 
   const 提示词 = [
-    '请帮我写一个typescript函数:',
-    `- ${解析结果.函数名称}:`,
+    '在typescript中, 我有一个函数.',
+    要求 ? `请: ${要求}.` : '请帮我实现它.',
     解析结果.函数说明 ? `  - 它的说明是: ${压缩为一行(解析结果.函数说明)}` : null,
     `  - 它的类型是: (主要考虑形式签名)`,
     `    - 形式签名: ${解析结果.函数形式签名}`,
