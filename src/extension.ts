@@ -2,6 +2,8 @@ import * as vscode from 'vscode'
 import { 全局变量 } from './global/global'
 import { 自定义代码动作提供程序 } from './vscode/action'
 import {
+  genClass,
+  genClassPrompt,
   genFunc,
   genFuncBody,
   genFuncPrompt,
@@ -30,6 +32,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genMethod`, genMethod))
   context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genMethodPrompt`, genMethodPrompt))
+
+  context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genClass`, genClass))
+  context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genClassPrompt`, genClassPrompt))
+
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider('typescript', new 自定义代码动作提供程序(), {
       providedCodeActionKinds: [vscode.CodeActionKind.QuickFix],

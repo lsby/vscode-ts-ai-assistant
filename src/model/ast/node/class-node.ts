@@ -5,6 +5,14 @@ import { 获得节点范围 } from './node.js'
 
 /**
  * 可以使用 {@link 获得所有类节点}
+ */
+export function 通过名称获得类节点(源文件: ts.SourceFile, 类名: string): 类节点 | null {
+  const 所有类节点 = 获得所有类节点(源文件)
+  return 所有类节点[类名] || null
+}
+
+/**
+ * 可以使用 {@link 获得所有类节点}
  * 可以使用 {@link 获得节点范围}
  */
 export function 通过位置获得类节点(源文件: ts.SourceFile, 位置: number): 类节点 | null {
