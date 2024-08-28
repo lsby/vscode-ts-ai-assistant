@@ -1,3 +1,4 @@
+import path from 'path'
 import * as vscode from 'vscode'
 
 export async function 获得tsconfig文件路径(): Promise<string | null> {
@@ -42,4 +43,8 @@ export function 匹配类(输入字符串: string): string | null {
 
 export function 压缩为一行(a: string): string {
   return a.replaceAll('\n', '\\n')
+}
+
+export function 转换为相对项目根目录路径(tsconfig文件路径: string, 路径: string): string {
+  return path.relative(tsconfig文件路径, 路径)
 }

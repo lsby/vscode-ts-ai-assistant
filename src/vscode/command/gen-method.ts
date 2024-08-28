@@ -1,4 +1,3 @@
-import path from 'path'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../../global/global'
 import { 获得类节点完整定义, 获得类节点类型, 通过位置获得类节点 } from '../../model/ast/node/class-node'
@@ -6,7 +5,7 @@ import { 获得节点jsdoc结果 } from '../../model/ast/node/node'
 import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program'
 import { 获得文件外部引用 } from '../../model/ast/source-file'
 import { 获得所有相关类型, 获得类型名称, 获得类型所在文件 } from '../../model/ast/type'
-import { 压缩为一行, 获得tsconfig文件路径 } from '../../tools/tools'
+import { 压缩为一行, 获得tsconfig文件路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 import { 函数信息, 类型信息, 计算引用 } from './gen-func'
 
 export async function 计算类方法提示词(起始位置: number, 方法名: string, 文件路径: string): Promise<string> {
@@ -54,10 +53,7 @@ export async function 计算类方法提示词(起始位置: number, 方法名: 
   }
 
   var 引用结果 = { 类型: 相关类型, 函数: 相关函数 }
-  const 头引入 = 获得文件外部引用(源文件, 类型检查器).map((a) => ({
-    ...a,
-    路径: path.relative(存在的tsconfig文件路径, a.路径),
-  }))
+  const 头引入 = 获得文件外部引用(源文件, 类型检查器)
 
   var 提示词 = [
     `在typescript中, 我有一个类, 请你帮我实现或优化其中的'${方法名}'方法.`,
@@ -68,7 +64,7 @@ export async function 计算类方法提示词(起始位置: number, 方法名: 
     引用结果.类型.length != 0 ? '其中相关的类型有:' : null,
     ...引用结果.类型.flatMap((a) => [
       `- ${a.内部名称 || a.类型名称}:`,
-      `  - 定义位置: ${a.类型位置}`,
+      `  - 定义位置: ${转换为相对项目根目录路径(存在的tsconfig文件路径, a.类型位置)}`,
       a.类型说明 ? `  - 它的说明是: ${压缩为一行(a.类型说明)}` : null,
       `  - 它的实现是: ${压缩为一行(a.类型实现)}`,
     ]),
@@ -85,7 +81,7 @@ export async function 计算类方法提示词(起始位置: number, 方法名: 
     ]),
 
     头引入.length != 0 ? `另外, 还可以使用这些模块: (不需要引入)` : null,
-    ...头引入.map((a) => `  - 来自: ${a.路径} 的 ${a.名称} 模块`),
+    ...头引入.map((a) => `  - 来自: ${转换为相对项目根目录路径(存在的tsconfig文件路径, a.路径)} 的 ${a.名称} 模块`),
 
     '',
 

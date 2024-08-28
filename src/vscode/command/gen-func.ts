@@ -1,4 +1,3 @@
-import path from 'path'
 import ts from 'typescript'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../../global/global'
@@ -16,7 +15,7 @@ import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '.
 import { 获得文件外部引用 } from '../../model/ast/source-file'
 import { 获得所有相关类型, 获得类型名称, 获得类型所在文件 } from '../../model/ast/type'
 import { 函数节点, 类型节点 } from '../../model/ast/types/types'
-import { 压缩为一行, 获得tsconfig文件路径 } from '../../tools/tools'
+import { 压缩为一行, 获得tsconfig文件路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 
 export type 类型基础信息 = {
   内部名称: string | null
@@ -192,10 +191,7 @@ export async function 计算函数提示词(函数名: string, 文件路径: str
   }
 
   const 引用结果 = 铺平引用结果(解析结果.相关类型, 解析结果.相关函数)
-  const 头引入 = 获得文件外部引用(源文件, 类型检查器).map((a) => ({
-    ...a,
-    路径: path.relative(存在的tsconfig文件路径, a.路径),
-  }))
+  const 头引入 = 获得文件外部引用(源文件, 类型检查器)
 
   const 提示词 = [
     '请帮我写一个typescript函数:',
@@ -209,7 +205,7 @@ export async function 计算函数提示词(函数名: string, 文件路径: str
     引用结果.类型.length != 0 ? '其中相关的类型有:' : null,
     ...引用结果.类型.flatMap((a) => [
       `- ${a.内部名称 || a.类型名称}:`,
-      `  - 定义位置: ${a.类型位置}`,
+      `  - 定义位置: ${转换为相对项目根目录路径(存在的tsconfig文件路径, a.类型位置)}`,
       a.类型说明 ? `  - 它的说明是: ${压缩为一行(a.类型说明)}` : null,
       `  - 它的实现是: ${压缩为一行(a.类型实现)}`,
     ]),
@@ -226,7 +222,7 @@ export async function 计算函数提示词(函数名: string, 文件路径: str
     ]),
 
     头引入.length != 0 ? `另外, 还可以使用这些模块: (不需要引入)` : null,
-    ...头引入.map((a) => `  - 来自: ${a.路径} 的 ${a.名称} 模块`),
+    ...头引入.map((a) => `  - 来自: ${转换为相对项目根目录路径(存在的tsconfig文件路径, a.路径)} 的 ${a.名称} 模块`),
 
     '',
 
