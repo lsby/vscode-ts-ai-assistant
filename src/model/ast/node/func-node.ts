@@ -4,9 +4,6 @@ import { 是函数类型, 获得类型名称 } from '../type.js'
 import { 函数节点, 节点 } from '../types/types.js'
 import { 解析引用类型名称 } from './../type.js'
 
-/**
- * 可以使用 {@link 获得所有函数节点}
- */
 export function 通过名称获得函数节点(
   源文件: ts.SourceFile,
   类型检查器: ts.TypeChecker,
@@ -36,9 +33,6 @@ export function 获得函数实际签名(函数节点: 函数节点, 类型检�
   return 类型检查器.typeToString(函数类型)
 }
 
-/**
- * 可以使用 {@link 解析引用类型名称}
- */
 export function 获得函数形式签名(函数节点: 函数节点, 类型检查器: ts.TypeChecker, 包含前缀: boolean = true): string {
   const 函数名称 = 函数节点.name ? 函数节点.name.getText() : '匿名函数'
   const 签名 = 类型检查器.getSignatureFromDeclaration(函数节点)

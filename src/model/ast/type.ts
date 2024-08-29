@@ -29,15 +29,6 @@ export function 获得类型所在文件(类型: ts.Type): string | null {
   if (!定义) return null
   return path.normalize(定义.getSourceFile().fileName)
 }
-/**
- * 递归计算给定类型的所有关联类型
- * 例如, 对于引用类型或泛型类型, 除了要输入类型本身外, 还要它的所有泛型参数的类型
- * 对于函数类型, 则包含函数的参数和返回类型
- * 其他类型以此类推
- * 另外这里可以使用ts命名空间
- * 可以使用 {@link 是函数类型}
- * 可以使用 {@link 是引用类型}
- */
 export function 获得所有相关类型(类型: ts.Type, 类型检查器: ts.TypeChecker): Array<ts.Type> {
   const 关联类型: Set<ts.Type> = new Set()
 

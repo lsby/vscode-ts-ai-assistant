@@ -16,9 +16,6 @@ export function 获得文件路径(a: ts.SourceFile): string {
 export function 获得源文件内容(a: ts.SourceFile): string {
   return a.getFullText()
 }
-/**
- * 获得源文件中定义在顶层的节点们
- */
 export function 获得所有顶层节点(a: ts.SourceFile): Array<ts.Node> {
   const 顶层节点数组: Array<ts.Node> = []
   a.forEachChild((节点) => {
@@ -29,11 +26,6 @@ export function 获得所有顶层节点(a: ts.SourceFile): Array<ts.Node> {
   return 顶层节点数组
 }
 
-/**
- * 可以使用 {@link 获得所有顶层节点}
- * 可以使用 {@link 是函数类型}
- * 其中Recode的key是函数名
- */
 export function 获得所有函数节点(源文件: ts.SourceFile, 类型检查器: ts.TypeChecker): Record<string, 函数节点> {
   const 所有节点 = 获得所有顶层节点(源文件)
   const 函数节点记录: Record<string, 函数节点> = {}
@@ -50,10 +42,6 @@ export function 获得所有函数节点(源文件: ts.SourceFile, 类型检查�
   return 函数节点记录
 }
 
-/**
- * 可以使用 {@link 获得所有顶层节点}
- * 其中Recode的key是类型名称
- */
 export function 获得所有类型节点(源文件: ts.SourceFile): Record<string, 类型节点> {
   const 顶层节点 = 获得所有顶层节点(源文件)
   const 类型节点: Record<string, 类型节点> = {}
@@ -67,10 +55,6 @@ export function 获得所有类型节点(源文件: ts.SourceFile): Record<strin
   return 类型节点
 }
 
-/**
- * 可以使用 {@link 获得所有顶层节点}
- * 其中Recode的key是类名称
- */
 export function 获得所有类节点(源文件: ts.SourceFile): Record<string, ts.ClassDeclaration> {
   const 顶层节点们 = 获得所有顶层节点(源文件)
   const 类节点记录: Record<string, ts.ClassDeclaration> = {}
@@ -84,10 +68,6 @@ export function 获得所有类节点(源文件: ts.SourceFile): Record<string, 
   return 类节点记录
 }
 
-/**
- * 查找当前文件的所有引入, 找到定义在node_modeule里的类型引入
- * 我们可以去获得引入的符号的声明的位置, 然后判断位置是否在node_modeule里
- */
 export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查器: ts.TypeChecker): { 路径: string; 名称: string }[] {
   const 引入数组: { 路径: string; 名称: string }[] = []
   const 引入声明 = 源文件.statements.filter(ts.isImportDeclaration)

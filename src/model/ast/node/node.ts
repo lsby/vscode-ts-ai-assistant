@@ -10,14 +10,6 @@ export type jsdoc结果 = {
   引用: { 内部名称: string; 定义名称: string; 位置: string }[]
 }
 
-/**
- * 分析一个节点的jsdoc部分
- * 获得其中的评论和评论中引用的函数(暂不支持解析引用的类型)
- * 其中:
- * - 内部名称: 指的是在jsdoc中实际写的名称
- * - 定义名称: 指的是引用的实体实际的名称
- * - 位置: 指的是定义这个实体的文件的完整路径
- */
 export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: ts.TypeChecker): jsdoc结果 | null {
   var jsdoc = ts.getJSDocCommentsAndTags(函数节点)
   var 评论们 = jsdoc[0]?.comment
@@ -80,16 +72,6 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
   return { 评论文本: 文本结果, 引用: 引用 }
 }
 
-/**
- * 从输入 {@link jsdoc结果} 开始
- * 递归分析相关的函数引用
- * 将所有相关的函数和对应的内部名称组成数组返回
- * 需要注意处理循环引用造成的无限循环问题
- * 通过 {@link 获得节点jsdoc结果} 可以获得节点的jsdoc部分
- * 通过 {@link 按路径选择源文件} 可以由给定路径获得源文件
- * 通过 {@link 通过名称获得函数节点} 可以从源文件查找给定名称的函数
- * 通过 {@link 通过名称获得类型节点} 可以从源文件查找给定名称的类型
- */
 export function 从jsdoc结果分析所有关联的节点(
   程序: ts.Program,
   类型检查器: ts.TypeChecker,
