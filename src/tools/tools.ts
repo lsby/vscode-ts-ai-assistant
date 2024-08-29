@@ -12,7 +12,7 @@ export async function 获得tsconfig文件路径(): Promise<string | null> {
   return null
 }
 export function 匹配函数名(a: string): string | null {
-  return a.match(/function (.*?)[<\(]/)?.[1] || null
+  return a.match(/function (.*?)\s*[<\(]/)?.[1] || null
 }
 
 export function 匹配类方法名称(输入字符串: string): string | null {
