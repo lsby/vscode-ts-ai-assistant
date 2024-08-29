@@ -52,13 +52,15 @@ export function 获得所有相关类型(类型: ts.Type, 类型检查器: ts.Ty
 
     // 处理类型别名
     if (标志 & ts.SymbolFlags.TypeAlias) {
-      子类型.symbol.members?.forEach((v) => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      子类型.symbol?.members?.forEach((v) => {
         var 声明 = v.getDeclarations()?.[0]
         if (声明) {
           添加类型(类型检查器.getTypeOfSymbolAtLocation(v, 声明))
         }
       })
-      if (子类型.symbol.valueDeclaration && ts.isClassDeclaration(子类型.symbol.valueDeclaration)) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (子类型.symbol?.valueDeclaration && ts.isClassDeclaration(子类型.symbol.valueDeclaration)) {
         子类型.symbol.valueDeclaration.members.forEach((v) => {
           添加类型(类型检查器.getTypeAtLocation(v))
         })
@@ -82,7 +84,8 @@ export function 获得所有相关类型(类型: ts.Type, 类型检查器: ts.Ty
 
     // 处理字面量类型
     if (标志 & ts.SymbolFlags.TypeLiteral) {
-      子类型.symbol.members?.forEach((v) => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      子类型?.symbol.members?.forEach((v) => {
         var 声明 = v.getDeclarations()?.[0]
         if (声明) {
           添加类型(类型检查器.getTypeOfSymbolAtLocation(v, 声明))

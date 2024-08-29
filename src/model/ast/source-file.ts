@@ -96,7 +96,8 @@ export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查�
     const 引入符号 = 类型检查器.getSymbolAtLocation(引入声明项.moduleSpecifier)
     if (引入符号 && 引入符号.declarations && 引入符号.declarations[0]) {
       const 引入声明信息 = 类型检查器.getTypeOfSymbolAtLocation(引入符号, 引入符号.declarations[0])
-      const 引入位置 = 引入声明信息.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      const 引入位置 = 引入声明信息?.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
       if (引入位置 && (引入位置.includes('..\\node_modules') || 引入位置.includes('../node_modules'))) {
         引入数组.push({ 路径: 引入位置, 名称: 引入模块名称 })
       }
