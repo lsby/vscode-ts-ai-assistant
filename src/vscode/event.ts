@@ -7,7 +7,7 @@ import { 通过名称获得函数节点 } from '../model/ast/node/func-node'
 import { 获得节点范围 } from '../model/ast/node/node'
 import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../model/ast/program'
 import { 我的OpenAI } from '../model/openai'
-import { 匹配函数名, 匹配类, 匹配类方法名称, 获得tsconfig文件路径 } from '../tools/tools'
+import { 匹配函数名, 匹配类, 匹配类方法名称, 获得tsconfig文件路径, 获得types文件夹路径 } from '../tools/tools'
 import { 侧边栏视图提供者 } from './web-view'
 
 export async function 初始化事件监听(): Promise<void> {
@@ -55,23 +55,29 @@ export async function 初始化事件监听(): Promise<void> {
         var 文件路径 = document.uri.fsPath
         var 起点行 = document.lineAt(editor.selection.active.line).text
 
+        const tsconfig文件路径 = await 获得tsconfig文件路径()
+        const types文件夹路径 = await 获得types文件夹路径()
+        if (!tsconfig文件路径) {
+          void vscode.window.showInformationMessage('没有找到tsconfig文件')
+          throw new Error('没有找到tsconfig文件')
+        }
+        if (!types文件夹路径) {
+          void vscode.window.showInformationMessage('没有找到types文件夹路径')
+          throw new Error('没有找到types文件夹路径')
+        }
+        var 存在的tsconfig文件路径 = tsconfig文件路径
+
+        const 程序 = 创建程序(存在的tsconfig文件路径, types文件夹路径)
+        const 类型检查器 = 获得类型检查器(程序)
+
+        const 源文件 = 按路径选择源文件(文件路径, 程序)
+        if (!源文件) {
+          void vscode.window.showInformationMessage('无法找到源文件')
+          throw new Error('无法找到源文件')
+        }
+
         var 函数名 = 匹配函数名(起点行)
         if (函数名) {
-          const tsconfig文件路径 = await 获得tsconfig文件路径()
-          if (!tsconfig文件路径) {
-            void vscode.window.showInformationMessage('没有找到tsconfig文件')
-            throw new Error('没有找到tsconfig文件')
-          }
-
-          const 程序 = 创建程序(tsconfig文件路径)
-          const 类型检查器 = 获得类型检查器(程序)
-
-          const 源文件 = 按路径选择源文件(文件路径, 程序)
-          if (!源文件) {
-            void vscode.window.showInformationMessage('无法找到源文件')
-            throw new Error('无法找到源文件')
-          }
-
           const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 函数名)
           if (!函数节点) {
             void vscode.window.showInformationMessage('无法找到函数')
@@ -91,19 +97,6 @@ export async function 初始化事件监听(): Promise<void> {
 
         var 类方法名 = 匹配类方法名称(起点行)
         if (类方法名) {
-          const tsconfig文件路径 = await 获得tsconfig文件路径()
-          if (!tsconfig文件路径) {
-            void vscode.window.showInformationMessage('没有找到tsconfig文件')
-            throw new Error('没有找到tsconfig文件')
-          }
-
-          const 程序 = 创建程序(tsconfig文件路径)
-          const 源文件 = 按路径选择源文件(文件路径, 程序)
-          if (!源文件) {
-            void vscode.window.showInformationMessage('无法找到源文件')
-            throw new Error('无法找到源文件')
-          }
-
           var 零点偏移 = document.offsetAt(editor.selection.start)
           var 类节点 = 通过位置获得类节点(源文件, 零点偏移)
           if (!类节点) {
@@ -130,19 +123,6 @@ export async function 初始化事件监听(): Promise<void> {
 
         var 类名 = 匹配类(起点行)
         if (类名) {
-          const tsconfig文件路径 = await 获得tsconfig文件路径()
-          if (!tsconfig文件路径) {
-            void vscode.window.showInformationMessage('没有找到tsconfig文件')
-            throw new Error('没有找到tsconfig文件')
-          }
-
-          const 程序 = 创建程序(tsconfig文件路径)
-          const 源文件 = 按路径选择源文件(文件路径, 程序)
-          if (!源文件) {
-            void vscode.window.showInformationMessage('无法找到源文件')
-            throw new Error('无法找到源文件')
-          }
-
           var 类节点 = 通过名称获得类节点(源文件, 类名)
           if (!类节点) {
             void vscode.window.showInformationMessage('无法找到类节点')

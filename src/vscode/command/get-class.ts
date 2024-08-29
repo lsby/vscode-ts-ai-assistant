@@ -5,18 +5,23 @@ import { 获得节点jsdoc结果 } from '../../model/ast/node/node'
 import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program'
 import { 获得文件外部引用 } from '../../model/ast/source-file'
 import { 获得所有相关类型, 获得类型名称, 获得类型所在文件 } from '../../model/ast/type'
-import { 压缩为一行, 获得tsconfig文件路径, 转换为相对项目根目录路径 } from '../../tools/tools'
+import { 压缩为一行, 获得tsconfig文件路径, 获得types文件夹路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 import { 函数信息, 类型信息, 计算引用 } from './gen-func'
 
 export async function 计算类提示词(类名: string, 文件路径: string, 要求: string): Promise<string> {
   const tsconfig文件路径 = await 获得tsconfig文件路径()
+  const types文件夹路径 = await 获得types文件夹路径()
   if (!tsconfig文件路径) {
     void vscode.window.showInformationMessage('没有找到tsconfig文件')
     throw new Error('没有找到tsconfig文件')
   }
+  if (!types文件夹路径) {
+    void vscode.window.showInformationMessage('没有找到types文件夹路径')
+    throw new Error('没有找到types文件夹路径')
+  }
   var 存在的tsconfig文件路径 = tsconfig文件路径
 
-  const 程序 = 创建程序(存在的tsconfig文件路径)
+  const 程序 = 创建程序(存在的tsconfig文件路径, types文件夹路径)
   const 类型检查器 = 获得类型检查器(程序)
 
   const 源文件 = 按路径选择源文件(文件路径, 程序)

@@ -1,3 +1,4 @@
+import path from 'path'
 import ts from 'typescript'
 import { 是函数类型 } from './type'
 import { 函数节点, 类型节点 } from './types/types'
@@ -10,7 +11,7 @@ export function 是dts文件(源文件: ts.SourceFile): boolean {
   return 源文件.isDeclarationFile
 }
 export function 获得文件路径(a: ts.SourceFile): string {
-  return a.fileName
+  return path.normalize(a.fileName)
 }
 export function 获得源文件内容(a: ts.SourceFile): string {
   return a.getFullText()
@@ -99,7 +100,7 @@ export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查�
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const 引入位置 = 引入声明信息?.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
       if (引入位置 && (引入位置.includes('..\\node_modules') || 引入位置.includes('../node_modules'))) {
-        引入数组.push({ 路径: 引入位置, 名称: 引入模块名称 })
+        引入数组.push({ 路径: path.normalize(引入位置), 名称: 引入模块名称 })
       }
     }
   }

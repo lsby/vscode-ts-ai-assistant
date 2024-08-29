@@ -1,3 +1,4 @@
+import path from 'path'
 import ts from 'typescript'
 import { 按路径选择源文件 } from '../program'
 import { 节点 } from '../types/types'
@@ -48,7 +49,7 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
             导入的符号名称 = 声明.propertyName?.text || 声明.name.text || null
             var 文件路径 = 目标符号.getDeclarations()?.[0]?.getSourceFile().fileName
             if (文件路径 == null) return null
-            导入的符号位置 = 文件路径
+            导入的符号位置 = path.normalize(文件路径)
           }
         } else if (
           声明 &&
@@ -66,7 +67,7 @@ export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: t
             return a.内部名称 == 字符串表示 && a.定义名称 == 导入的符号名称 && a.位置 == 导入的符号位置
           })
           if (!重复检查) {
-            引用.push({ 内部名称: 字符串表示, 定义名称: 导入的符号名称, 位置: 导入的符号位置 })
+            引用.push({ 内部名称: 字符串表示, 定义名称: 导入的符号名称, 位置: path.normalize(导入的符号位置) })
           }
         }
         文本结果 += 字符串表示

@@ -11,6 +11,22 @@ export async function 获得tsconfig文件路径(): Promise<string | null> {
 
   return null
 }
+
+export async function 获得node_modules文件夹路径(): Promise<string | null> {
+  const 工作区 = vscode.workspace.workspaceFolders?.[0]
+  if (工作区) {
+    const nodeModules路径 = path.resolve(工作区.uri.fsPath, 'node_modules')
+    return nodeModules路径
+  }
+  return null
+}
+
+export async function 获得types文件夹路径(): Promise<string | null> {
+  var node_modules文件夹路径 = await 获得node_modules文件夹路径()
+  if (node_modules文件夹路径 == null) return null
+  return path.resolve(node_modules文件夹路径, '@types')
+}
+
 export function 匹配函数名(a: string): string | null {
   return a.match(/function (.*?)\s*[<\(]/)?.[1] || null
 }
