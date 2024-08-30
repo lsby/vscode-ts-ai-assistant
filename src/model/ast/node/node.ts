@@ -1,7 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
 import { 按路径选择源文件 } from '../program'
-import { 节点 } from '../types/types'
+import { 节点, 范围 } from '../types/types'
 import { 通过名称获得函数节点 } from './func-node'
 import { 通过名称获得类型节点 } from './type-node'
 
@@ -89,7 +89,7 @@ export function 从jsdoc结果分析所有关联的节点(
 
     const 源文件 = 按路径选择源文件(引用项.位置, 程序)
     if (源文件) {
-      const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 定义名称)
+      const 函数节点 = 通过名称获得函数节点(源文件, 定义名称)
       if (函数节点) {
         已处理项.add(定义名称)
         结果.push({ 内部名称, 节点: 函数节点 })
@@ -120,6 +120,6 @@ export function 获得节点jsdoc关联的所有节点(
   return 从jsdoc结果分析所有关联的节点(程序, 类型检查器, jsdoc)
 }
 
-export function 获得节点范围(节点: 节点, 源文件?: ts.SourceFile): { start: number; end: number } {
+export function 获得节点范围(节点: 节点, 源文件?: ts.SourceFile): 范围 {
   return { start: 节点.getStart(源文件), end: 节点.getEnd() }
 }

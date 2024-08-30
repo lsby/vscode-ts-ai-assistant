@@ -33,7 +33,7 @@ export function 获得类型实现(类型节点: 类型节点, 类型检查器: 
           .getModifiers(method)
           ?.map((mod) => mod.getText())
           .join(' ') + ' '
-      结果 += `  ${前缀}${获得函数形式签名(method, 类型检查器, false)}\n`
+      结果 += `  ${前缀 || ''}${获得函数形式签名(method, 类型检查器, false)}\n`
     })
 
     结果 += `}`

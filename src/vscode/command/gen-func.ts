@@ -58,7 +58,7 @@ export function 计算引用(
     const 类型节点 = 通过名称获得类型节点(源文件, 引用项.定义名称)
     if (类型节点) 类型结果.push({ 内部名称: 引用项.内部名称, 节点: 类型节点 })
 
-    const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 引用项.定义名称)
+    const 函数节点 = 通过名称获得函数节点(源文件, 引用项.定义名称)
     if (函数节点) 函数结果.push({ 内部名称: 引用项.内部名称, 节点: 函数节点 })
   }
 
@@ -98,7 +98,7 @@ export function 处理类型节点(
 
   return { 内部名称, 类型说明, 类型名称, 类型位置, 类型实现, 相关类型, 相关函数 }
 }
-function 处理函数节点(
+export function 处理函数节点(
   程序: ts.Program,
   类型检查器: ts.TypeChecker,
   节点: 函数节点,
@@ -136,7 +136,10 @@ function 处理函数节点(
   return { 函数名称, 内部名称, 函数形式签名, 函数实际签名, 函数说明, 函数实现, 相关类型, 相关函数 }
 }
 
-function 铺平引用结果(相关类型: 类型信息[], 相关函数: 函数信息[]): { 类型: 类型基础信息[]; 函数: 函数基础信息[] } {
+export function 铺平引用结果(
+  相关类型: 类型信息[],
+  相关函数: 函数信息[],
+): { 类型: 类型基础信息[]; 函数: 函数基础信息[] } {
   if (相关类型.length == 0 && 相关函数.length == 0) return { 类型: [], 函数: [] }
 
   var 本层类型: 类型基础信息[] = []
@@ -162,10 +165,10 @@ function 铺平引用结果(相关类型: 类型信息[], 相关函数: 函数�
 }
 
 export async function 计算函数提示词(
-  函数名: string,
   文件路径: string,
-  包含实现: boolean,
+  函数名: string,
   要求: string | null,
+  包含实现: boolean,
 ): Promise<string> {
   const tsconfig文件路径 = await 获得tsconfig文件路径()
   const types文件夹路径 = await 获得types文件夹路径()
@@ -188,7 +191,7 @@ export async function 计算函数提示词(
     throw new Error('无法找到源文件')
   }
 
-  const 函数节点 = 通过名称获得函数节点(源文件, 类型检查器, 函数名)
+  const 函数节点 = 通过名称获得函数节点(源文件, 函数名)
   if (!函数节点) {
     void vscode.window.showInformationMessage('无法找到函数')
     throw new Error('无法找到函数')
@@ -205,7 +208,34 @@ export async function 计算函数提示词(
 
   const 提示词 = [
     '在typescript中, 我有一个函数.',
-    要求 ? `请: ${要求}.` : '请帮我实现它.',
+    要求 ? `请: ${要求}.` : '请帮我优化.',
+
+    '',
+
+    ...函数通用提示词(存在的tsconfig文件路径, 解析结果, 引用结果, 头引入, 包含实现),
+
+    '',
+
+    '只需要编写这个函数, 不需要写其他的函数, 不要在函数前后加注释, 不要引入其他文件.',
+    全局变量.配置.otherPrompt ? 全局变量.配置.otherPrompt : null,
+  ]
+    .filter((a) => a != null)
+    .join('\n')
+
+  console.log('===========')
+  console.log(提示词)
+
+  return 提示词
+}
+
+export function 函数通用提示词(
+  存在的tsconfig文件路径: string,
+  解析结果: 函数信息,
+  引用结果: { 类型: 类型基础信息[]; 函数: 函数基础信息[] },
+  头引入: { 路径: string; 名称: string }[],
+  包含实现: boolean,
+): (string | null)[] {
+  return [
     解析结果.函数说明 ? `  - 它的说明是: ${压缩为一行(解析结果.函数说明)}` : null,
     `  - 它的类型是: (主要考虑形式签名)`,
     `    - 形式签名: ${解析结果.函数形式签名}`,
@@ -233,17 +263,5 @@ export async function 计算函数提示词(
 
     头引入.length != 0 ? `另外, 还可以使用这些模块: (不需要引入)` : null,
     ...头引入.map((a) => `  - 来自: ${转换为相对项目根目录路径(存在的tsconfig文件路径, a.路径)} 的 ${a.名称} 模块`),
-
-    '',
-
-    '只需要编写这个函数, 不需要写其他的函数, 不要在函数前后加注释, 不要引入其他文件.',
-    全局变量.配置.otherPrompt ? 全局变量.配置.otherPrompt : null,
   ]
-    .filter((a) => a != null)
-    .join('\n')
-
-  console.log('===========')
-  console.log(提示词)
-
-  return 提示词
 }

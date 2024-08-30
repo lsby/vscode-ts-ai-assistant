@@ -1,6 +1,5 @@
 import path from 'path'
 import ts from 'typescript'
-import { 是函数类型 } from './type'
 import { 函数节点, 类型节点 } from './types/types'
 
 export function 获得源文件们(a: ts.Program): readonly ts.SourceFile[] {
@@ -26,16 +25,13 @@ export function 获得所有顶层节点(a: ts.SourceFile): Array<ts.Node> {
   return 顶层节点数组
 }
 
-export function 获得所有函数节点(源文件: ts.SourceFile, 类型检查器: ts.TypeChecker): Record<string, 函数节点> {
+export function 获得所有函数节点(源文件: ts.SourceFile): Record<string, 函数节点> {
   const 所有节点 = 获得所有顶层节点(源文件)
   const 函数节点记录: Record<string, 函数节点> = {}
 
   所有节点.forEach((节点) => {
-    const 类型 = 类型检查器.getTypeAtLocation(节点)
-    if (是函数类型(类型, 类型检查器)) {
-      if (ts.isFunctionDeclaration(节点) && 节点.name) {
-        函数节点记录[节点.name.getText()] = 节点
-      }
+    if (ts.isFunctionDeclaration(节点) && 节点.name) {
+      函数节点记录[节点.name.text] = 节点
     }
   })
 
@@ -47,8 +43,11 @@ export function 获得所有类型节点(源文件: ts.SourceFile): Record<strin
   const 类型节点: Record<string, 类型节点> = {}
 
   for (const 节点 of 顶层节点) {
-    if (ts.isTypeAliasDeclaration(节点) || ts.isInterfaceDeclaration(节点) || ts.isClassDeclaration(节点)) {
-      if (节点.name) 类型节点[节点.name.getText()] = 节点
+    if (
+      (ts.isTypeAliasDeclaration(节点) || ts.isInterfaceDeclaration(节点) || ts.isClassDeclaration(节点)) &&
+      节点.name
+    ) {
+      类型节点[节点.name.getText()] = 节点
     }
   }
 
@@ -79,7 +78,7 @@ export function 获得文件外部引用(源文件: ts.SourceFile, 类型检查�
       const 引入声明信息 = 类型检查器.getTypeOfSymbolAtLocation(引入符号, 引入符号.declarations[0])
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const 引入位置 = 引入声明信息?.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
-      if (引入位置 && (引入位置.includes('..\\node_modules') || 引入位置.includes('../node_modules'))) {
+      if (引入位置 && 引入位置.includes('/node_modules/')) {
         引入数组.push({ 路径: path.normalize(引入位置), 名称: 引入模块名称 })
       }
     }

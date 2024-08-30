@@ -1,19 +1,27 @@
 import ts from 'typescript'
-import { 获得所有函数节点 } from '../source-file.js'
-import { 是函数类型, 获得类型名称 } from '../type.js'
+import { 获得类型名称 } from '../type.js'
 import { 函数节点, 节点 } from '../types/types.js'
+import { 获得所有函数节点 } from './../source-file.js'
 import { 解析引用类型名称 } from './../type.js'
+import { 获得节点范围 } from './node.js'
 
-export function 通过名称获得函数节点(
-  源文件: ts.SourceFile,
-  类型检查器: ts.TypeChecker,
-  函数名: string,
-): 函数节点 | null {
-  const 所有函数节点 = 获得所有函数节点(源文件, 类型检查器)
+export function 通过名称获得函数节点(源文件: ts.SourceFile, 函数名: string): 函数节点 | null {
+  const 所有函数节点 = 获得所有函数节点(源文件)
   const 函数节点 = 所有函数节点[函数名]
+  return 函数节点 || null
+}
 
-  if (函数节点 && 是函数类型(类型检查器.getTypeAtLocation(函数节点), 类型检查器)) {
-    if (ts.isFunctionDeclaration(函数节点)) return 函数节点
+/**
+ * {@link 获得所有函数节点}
+ * {@link 获得节点范围}
+ */
+export function 通过完整位置获得函数节点(源文件: ts.SourceFile, 开始位置: number, 结束位置: number): 函数节点 | null {
+  const 所有函数节点 = 获得所有函数节点(源文件)
+  for (const 节点 of Object.values(所有函数节点)) {
+    const 范围 = 获得节点范围(节点)
+    if (范围.start <= 开始位置 && 结束位置 <= 范围.end) {
+      return 节点
+    }
   }
   return null
 }
