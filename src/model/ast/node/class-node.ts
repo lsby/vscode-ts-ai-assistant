@@ -52,20 +52,14 @@ export function 获得类节点的所有方法(节点: ts.ClassDeclaration, 源�
 }
 
 /**
- * {@link 通过位置获得类节点}
- * {@link 获得类节点的所有方法}
- * {@link 获得类节点方法范围}
+ * {@link 获得所有类节点}
+ * {@link 获得节点范围}
  */
 export function 通过完整位置获得类节点(源文件: ts.SourceFile, 开始位置: number, 结束位置: number): 类节点 | null {
-  const 类节点 = 通过位置获得类节点(源文件, 开始位置)
-  if (!类节点) {
-    return null
-  }
-
-  const 方法节点 = 获得类节点的所有方法(类节点, 源文件)
-  for (const 方法名 in 方法节点) {
-    const 方法范围 = 获得类节点方法范围(类节点, 方法名, 源文件)
-    if (方法范围 && 方法范围.start <= 开始位置 && 结束位置 <= 方法范围.end) {
+  const 所有类节点 = 获得所有类节点(源文件)
+  for (const 类节点 of Object.values(所有类节点)) {
+    const 节点范围 = 获得节点范围(类节点, 源文件)
+    if (节点范围.start <= 开始位置 && 结束位置 <= 节点范围.end) {
       return 类节点
     }
   }
