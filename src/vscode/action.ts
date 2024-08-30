@@ -93,21 +93,21 @@ export class 自定义代码动作提供程序 implements vscode.CodeActionProvi
     }
 
     if (开始位置 != 结束位置) {
-      var 优化代码片段 = new vscode.CodeAction('优化代码片段', vscode.CodeActionKind.QuickFix)
-      优化代码片段.command = {
+      var 优化片段 = new vscode.CodeAction('优化片段', vscode.CodeActionKind.QuickFix)
+      优化片段.command = {
         command: `${全局变量.插件名称}.genCode`,
-        title: '优化代码片段',
+        title: '优化片段',
         arguments: [文件路径, 开始位置, 结束位置],
       }
-      代码动作.push(优化代码片段)
+      代码动作.push(优化片段)
 
-      var 生成优化代码片段提示词 = new vscode.CodeAction('生成优化代码片段提示词', vscode.CodeActionKind.QuickFix)
-      生成优化代码片段提示词.command = {
+      var 生成优化片段提示词 = new vscode.CodeAction('生成优化片段提示词', vscode.CodeActionKind.QuickFix)
+      生成优化片段提示词.command = {
         command: `${全局变量.插件名称}.genCodePrompt`,
-        title: '生成优化代码片段提示词',
+        title: '生成优化片段提示词',
         arguments: [文件路径, 开始位置, 结束位置],
       }
-      代码动作.push(生成优化代码片段提示词)
+      代码动作.push(生成优化片段提示词)
 
       var 对片段提问 = new vscode.CodeAction('对片段提问', vscode.CodeActionKind.QuickFix)
       对片段提问.command = {
