@@ -38,12 +38,6 @@
     "lint": "eslint src --ext ts"
   },
   "contributes": {
-    "commands": [
-      {
-        "command": "lsby-vscode-ts-ai-assistant.helloWorld",
-        "title": "lsby-vscode-ts-ai-assistant: Hello World"
-      }
-    ],
     "configuration": {
       "title": "TypeScript AI 助手",
       "properties": {

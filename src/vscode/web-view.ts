@@ -52,16 +52,17 @@ export class 侧边栏视图提供者 implements vscode.WebviewViewProvider {
     }
 
     var scriptUri = 视图.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'media', 'web', 'index.js'))
-    视图.webview.html = `<!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <script src="${scriptUri}" defer></script>
-    </head>
-    <body>
-      <div id="app"></div>
-    </body>
+    视图.webview.html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="${scriptUri}" defer></script>
+      </head>
+      <body>
+        <div id="app"></div>
+      </body>
     `
 
     视图.webview.onDidReceiveMessage(async (message) => {

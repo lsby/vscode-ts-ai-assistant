@@ -4,10 +4,6 @@ import { 计算类方法提示词 } from './command/gen-method'
 import { 计算类提示词 } from './command/get-class'
 import { 侧边栏视图提供者 } from './web-view'
 
-export async function helloWrold(): Promise<void> {
-  void vscode.window.showInformationMessage(`Hello World!`)
-}
-
 export async function genFunc(函数名: string, 文件路径: string): Promise<void> {
   await vscode.commands.executeCommand('workbench.action.files.save')
   var 提示词 = await 计算函数提示词(函数名, 文件路径, false, null)
