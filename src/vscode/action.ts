@@ -101,29 +101,29 @@ export class 自定义代码动作提供程序 implements vscode.CodeActionProvi
       }
       代码动作.push(优化代码片段)
 
-      var 生成优化代码片段提示 = new vscode.CodeAction('生成优化代码片段提示', vscode.CodeActionKind.QuickFix)
-      生成优化代码片段提示.command = {
+      var 生成优化代码片段提示词 = new vscode.CodeAction('生成优化代码片段提示词', vscode.CodeActionKind.QuickFix)
+      生成优化代码片段提示词.command = {
         command: `${全局变量.插件名称}.genCodePrompt`,
-        title: '生成优化代码片段提示',
+        title: '生成优化代码片段提示词',
         arguments: [文件路径, 开始位置, 结束位置],
       }
-      代码动作.push(生成优化代码片段提示)
+      代码动作.push(生成优化代码片段提示词)
 
-      var 提问 = new vscode.CodeAction('提问', vscode.CodeActionKind.QuickFix)
-      提问.command = {
+      var 对片段提问 = new vscode.CodeAction('对片段提问', vscode.CodeActionKind.QuickFix)
+      对片段提问.command = {
         command: `${全局变量.插件名称}.genQuestion`,
-        title: '提问',
+        title: '对片段提问',
         arguments: [文件路径, 开始位置, 结束位置],
       }
-      代码动作.push(提问)
+      代码动作.push(对片段提问)
 
-      var 生成提问提示词 = new vscode.CodeAction('生成提问提示词', vscode.CodeActionKind.QuickFix)
-      生成提问提示词.command = {
+      var 生成对片段提问提示词 = new vscode.CodeAction('生成对片段提问提示词', vscode.CodeActionKind.QuickFix)
+      生成对片段提问提示词.command = {
         command: `${全局变量.插件名称}.genQuestionPrompt`,
-        title: '生成提问提示词',
+        title: '生成对片段提问提示词',
         arguments: [文件路径, 开始位置, 结束位置],
       }
-      代码动作.push(生成提问提示词)
+      代码动作.push(生成对片段提问提示词)
     }
 
     return 代码动作
