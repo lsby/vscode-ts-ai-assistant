@@ -106,6 +106,6 @@ export async function 计算优化代码片段提示词(
     return 提示词
   }
 
-  void vscode.window.showInformationMessage('选中的部分不是函数或方法')
-  throw new Error('选中的部分不是函数或方法')
+  void vscode.window.showInformationMessage('选中的部分不在函数或类里')
+  throw new Error('选中的部分不在函数或类里')
 }
