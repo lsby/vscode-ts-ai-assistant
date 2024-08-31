@@ -11,65 +11,59 @@ export type jsdoc结果 = {
 }
 
 export function 获得节点jsdoc结果(函数节点: 节点, 类型检查器: ts.TypeChecker): jsdoc结果 | null {
-  var jsdoc = ts.getJSDocCommentsAndTags(函数节点)
-  var 评论们 = jsdoc[0]?.comment
-  if (jsdoc.length == 0 || 评论们 == null) return null
+  var jsdoc = ts.getJSDocCommentsAndTags(函数节点)[0]
+  if (jsdoc == null) return null
 
-  var 文本结果 = ''
+  var 评论们 = jsdoc.comment
+  if (评论们 == null) return null
+
+  if (typeof 评论们 == 'string') return null
+
   var 引用: { 内部名称: string; 定义名称: string; 位置: string }[] = []
+  for (var 评论 of 评论们) {
+    if (评论.kind == ts.SyntaxKind.JSDocText) continue
+    if (ts.isJSDocLink(评论)) {
+      if (评论.name == null) continue
 
-  if (typeof 评论们 == 'string') {
-    文本结果 = 评论们
-  } else {
-    for (var 评论 of 评论们) {
-      if (评论.kind == ts.SyntaxKind.JSDocText) {
-        文本结果 += 评论.text
-        continue
-      }
-      if (ts.isJSDocLink(评论)) {
-        if (评论.name == null) continue
+      var 字符串表示 = 评论.getText()
+      var 导入的符号名称: string | null = null
+      var 导入的符号位置: string | null = null
 
-        var 字符串表示 = 评论.getText()
-        var 导入的符号名称: string | null = null
-        var 导入的符号位置: string | null = null
-
-        var 提及内容 = 类型检查器.getSymbolAtLocation(评论.name)
-        var 声明 = 提及内容?.getDeclarations()?.[0]
-        if (声明 && ts.isImportSpecifier(声明)) {
-          var 目标符号 = 类型检查器.getSymbolAtLocation(声明.parent.parent.parent.moduleSpecifier)
-          if (目标符号) {
-            导入的符号名称 = 声明.propertyName?.text || 声明.name.text || null
-            var 文件路径 = 目标符号.getDeclarations()?.[0]?.getSourceFile().fileName
-            if (文件路径 == null) return null
-            导入的符号位置 = path.normalize(文件路径)
-          }
-        } else if (
-          声明 &&
-          (ts.isFunctionDeclaration(声明) ||
-            ts.isTypeAliasDeclaration(声明) ||
-            ts.isInterfaceDeclaration(声明) ||
-            ts.isClassDeclaration(声明))
-        ) {
-          导入的符号名称 = 声明.name?.getText() || null
-          导入的符号位置 = 声明.getSourceFile().fileName
+      var 提及内容 = 类型检查器.getSymbolAtLocation(评论.name)
+      var 声明 = 提及内容?.getDeclarations()?.[0]
+      if (声明 && ts.isImportSpecifier(声明)) {
+        var 目标符号 = 类型检查器.getSymbolAtLocation(声明.parent.parent.parent.moduleSpecifier)
+        if (目标符号) {
+          导入的符号名称 = 声明.propertyName?.text || 声明.name.text || null
+          var 文件路径 = 目标符号.getDeclarations()?.[0]?.getSourceFile().fileName
+          if (文件路径 == null) return null
+          导入的符号位置 = path.normalize(文件路径)
         }
-
-        if (导入的符号名称 && 导入的符号位置) {
-          var 重复检查 = 引用.find((a) => {
-            return a.内部名称 == 字符串表示 && a.定义名称 == 导入的符号名称 && a.位置 == 导入的符号位置
-          })
-          if (!重复检查) {
-            引用.push({ 内部名称: 字符串表示, 定义名称: 导入的符号名称, 位置: path.normalize(导入的符号位置) })
-          }
-        }
-        文本结果 += 字符串表示
-
-        continue
+      } else if (
+        声明 &&
+        (ts.isFunctionDeclaration(声明) ||
+          ts.isTypeAliasDeclaration(声明) ||
+          ts.isInterfaceDeclaration(声明) ||
+          ts.isClassDeclaration(声明))
+      ) {
+        导入的符号名称 = 声明.name?.getText() || null
+        导入的符号位置 = 声明.getSourceFile().fileName
       }
+
+      if (导入的符号名称 && 导入的符号位置) {
+        var 重复检查 = 引用.find((a) => {
+          return a.内部名称 == 字符串表示 && a.定义名称 == 导入的符号名称 && a.位置 == 导入的符号位置
+        })
+        if (!重复检查) {
+          引用.push({ 内部名称: 字符串表示, 定义名称: 导入的符号名称, 位置: path.normalize(导入的符号位置) })
+        }
+      }
+
+      continue
     }
   }
 
-  return { 评论文本: 文本结果, 引用: 引用 }
+  return { 评论文本: jsdoc.getText(), 引用: 引用 }
 }
 
 export function 从jsdoc结果分析所有关联的节点(
