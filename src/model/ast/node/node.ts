@@ -117,3 +117,10 @@ export function 获得节点jsdoc关联的所有节点(
 export function 获得节点范围(节点: 节点, 源文件?: ts.SourceFile): 范围 {
   return { start: 节点.getStart(源文件), end: 节点.getEnd() }
 }
+
+export function 获得直接子节点(节点: ts.Node | null): ts.Node[] {
+  if (节点 == null) return []
+  const 子节点数组: ts.Node[] = []
+  ts.forEachChild(节点, (子节点) => 子节点数组.push(子节点))
+  return 子节点数组
+}

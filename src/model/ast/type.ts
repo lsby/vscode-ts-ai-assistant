@@ -1,5 +1,6 @@
 import path from 'path'
 import ts from 'typescript'
+import { 获得直接子节点 } from './node/node'
 
 export function 是引用类型(类型: ts.Type): boolean {
   if (类型.flags & ts.TypeFlags.Object && (类型 as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference) {
@@ -99,15 +100,29 @@ export function 获得所有相关类型(类型: ts.Type, 类型检查器: ts.Ty
     // 处理函数类型
     if (是函数类型(子类型, 类型检查器)) {
       const 签名 = 类型检查器.getSignaturesOfType(子类型, ts.SignatureKind.Call)
+
       for (const 函数签名 of 签名) {
-        const 参数符号 = 函数签名.getParameters()
-        for (const 参数的符号 of 参数符号) {
-          if (参数的符号.valueDeclaration) {
-            添加类型(类型检查器.getTypeOfSymbolAtLocation(参数的符号, 参数的符号.valueDeclaration))
+        // 处理参数
+        const 参数符号们 = 函数签名.getParameters()
+        for (const 参数符号 of 参数符号们) {
+          if (参数符号.valueDeclaration) {
+            if (ts.isParameter(参数符号.valueDeclaration)) {
+              var 子节点 = 获得直接子节点(参数符号.valueDeclaration.type || null)
+              子节点.forEach((节点) => 添加类型(类型检查器.getTypeAtLocation(节点)))
+            }
+            添加类型(类型检查器.getTypeOfSymbolAtLocation(参数符号, 参数符号.valueDeclaration))
           }
+          添加类型(类型检查器.getTypeOfSymbol(参数符号))
         }
-        const 返回类型 = 函数签名.getReturnType()
-        添加类型(返回类型) // 递归添加返回类型
+
+        // 处理返回
+        if (函数签名.declaration && 函数签名.declaration.type) {
+          var 声明 = 函数签名.declaration.type
+          var 子节点 = 获得直接子节点(声明)
+          子节点.forEach((节点) => 添加类型(类型检查器.getTypeAtLocation(节点)))
+          添加类型(类型检查器.getTypeAtLocation(声明))
+        }
+        添加类型(类型检查器.getReturnTypeOfSignature(函数签名))
       }
     }
 
