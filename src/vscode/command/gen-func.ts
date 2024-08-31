@@ -208,6 +208,7 @@ export async function 计算函数提示词(
 
   if (包含实现) {
     const 函数体结果 = 获得函数体相关类型(函数节点, 类型检查器)
+      .flatMap((a) => 获得所有相关类型(a, 类型检查器))
       .map((a) => 获得类型的节点(a))
       .filter((a) => a != null)
       .map((a) => 处理类型节点(程序, 类型检查器, a))
