@@ -213,6 +213,7 @@ export async function 计算函数提示词(
       .map((a) => 处理类型节点(程序, 类型检查器, a))
       .filter((a) => a != null)
     引用结果.类型.push(...函数体结果)
+    引用结果.类型 = Array.from(new Set(引用结果.类型))
   }
 
   const 头引入 = 获得文件外部引用(源文件, 类型检查器)
