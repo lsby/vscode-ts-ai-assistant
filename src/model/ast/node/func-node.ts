@@ -1,9 +1,48 @@
 import ts from 'typescript'
-import { 获得类型名称 } from '../type.js'
+import { 获得所有相关类型, 获得类型名称 } from '../type.js'
 import { 函数节点, 节点 } from '../types/types.js'
 import { 获得所有函数节点 } from './../source-file.js'
 import { 解析引用类型名称 } from './../type.js'
 import { 获得节点范围 } from './node.js'
+
+export function 获得函数体相关类型(函数节点: 函数节点, 类型检查器: ts.TypeChecker): ts.Type[] {
+  const 类型集合: Set<ts.Type> = new Set()
+
+  function 递归提取类型(node: ts.Node): void {
+    if (ts.isIdentifier(node)) {
+      const 类型 = 类型检查器.getTypeAtLocation(node)
+      类型集合.add(类型)
+    }
+    if (ts.isVariableDeclaration(node) && node.type) {
+      类型集合.add(类型检查器.getTypeAtLocation(node.type))
+    }
+    if (ts.isParameter(node) && node.type) {
+      类型集合.add(类型检查器.getTypeAtLocation(node.type))
+    }
+    if (ts.isPropertyDeclaration(node) && node.type) {
+      类型集合.add(类型检查器.getTypeAtLocation(node.type))
+    }
+    if (ts.isReturnStatement(node) && node.expression) {
+      类型集合.add(类型检查器.getTypeAtLocation(node.expression))
+    }
+    if (ts.isVariableStatement(node)) {
+      node.declarationList.declarations.forEach((declaration) => {
+        if (declaration.type) {
+          类型集合.add(类型检查器.getTypeAtLocation(declaration.type))
+        }
+        递归提取类型(declaration)
+      })
+    }
+
+    ts.forEachChild(node, 递归提取类型)
+  }
+
+  if (函数节点.body) 递归提取类型(函数节点.body)
+
+  return Array.from(类型集合)
+    .flatMap((a) => 获得所有相关类型(a, 类型检查器))
+    .filter((v, i, arr) => arr.findIndex((a) => a.symbol == v.symbol) == i)
+}
 
 export function 通过名称获得函数节点(源文件: ts.SourceFile, 函数名: string): 函数节点 | null {
   const 所有函数节点 = 获得所有函数节点(源文件)

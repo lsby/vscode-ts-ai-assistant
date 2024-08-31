@@ -2,6 +2,7 @@ import ts from 'typescript'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../../global/global'
 import {
+  获得函数体相关类型,
   获得函数名称,
   获得函数完整字符串,
   获得函数实际签名,
@@ -13,7 +14,7 @@ import { 获得节点jsdoc结果 } from '../../model/ast/node/node'
 import { 获得类型定义位置, 获得类型实现, 获得类型节点类型, 通过名称获得类型节点 } from '../../model/ast/node/type-node'
 import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program'
 import { 获得文件外部引用 } from '../../model/ast/source-file'
-import { 获得所有相关类型, 获得类型名称, 获得类型所在文件 } from '../../model/ast/type'
+import { 获得所有相关类型, 获得类型名称, 获得类型所在文件, 获得类型的节点 } from '../../model/ast/type'
 import { 函数节点, 类型节点 } from '../../model/ast/types/types'
 import { 压缩为一行, 获得tsconfig文件路径, 获得types文件夹路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 
@@ -204,6 +205,16 @@ export async function 计算函数提示词(
   }
 
   const 引用结果 = 铺平引用结果(解析结果.相关类型, 解析结果.相关函数)
+
+  if (包含实现) {
+    const 函数体结果 = 获得函数体相关类型(函数节点, 类型检查器)
+      .map((a) => 获得类型的节点(a))
+      .filter((a) => a != null)
+      .map((a) => 处理类型节点(程序, 类型检查器, a))
+      .filter((a) => a != null)
+    引用结果.类型.push(...函数体结果)
+  }
+
   const 头引入 = 获得文件外部引用(源文件, 类型检查器)
 
   const 提示词 = [

@@ -1,6 +1,21 @@
 import path from 'path'
 import ts from 'typescript'
 import { 获得直接子节点 } from './node/node'
+import { 类型节点 } from './types/types'
+
+export function 获得类型的节点(类型: ts.Type): 类型节点 | null {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (类型.symbol && 类型.symbol.valueDeclaration) {
+    if (
+      ts.isTypeAliasDeclaration(类型.symbol.valueDeclaration) ||
+      ts.isInterfaceDeclaration(类型.symbol.valueDeclaration) ||
+      ts.isClassDeclaration(类型.symbol.valueDeclaration)
+    ) {
+      return 类型.symbol.valueDeclaration
+    }
+  }
+  return null
+}
 
 export function 是引用类型(类型: ts.Type): boolean {
   if (类型.flags & ts.TypeFlags.Object && (类型 as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference) {
