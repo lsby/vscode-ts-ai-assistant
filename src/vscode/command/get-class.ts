@@ -43,7 +43,7 @@ export async function 计算类提示词(文件路径: string, 类名: string, �
 
   var 提示词 = [
     `在typescript中, 我有一个类.`,
-    要求 ? `请: ${要求}.` : '请帮我优化',
+    要求 ? `请: ${要求}.` : '请帮我优化它.',
 
     '',
 
