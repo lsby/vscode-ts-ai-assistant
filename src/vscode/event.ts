@@ -12,6 +12,12 @@ import { 侧边栏视图提供者 } from './web-view'
 
 export async function 初始化事件监听(): Promise<void> {
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
+
+  var 我的openAI实例 = new 我的OpenAI({
+    apiKey: 全局变量.配置.apiKey,
+    baseUrl: path.join(全局变量.配置.baseUrl, 'v1'),
+  })
+
   await 侧边栏实例.setEvent(async (message) => {
     switch (message.command) {
       case '调用AI':
@@ -21,10 +27,7 @@ export async function 初始化事件监听(): Promise<void> {
         }))
         提示词.unshift({ role: 'system', content: 全局变量.配置.systemPrompt })
 
-        await new 我的OpenAI({
-          apiKey: 全局变量.配置.apiKey,
-          baseUrl: path.join(全局变量.配置.baseUrl, 'v1'),
-        })
+        await 我的openAI实例
           .chat({
             model: 全局变量.配置.modelName,
             messages: 提示词,
@@ -70,7 +73,6 @@ export async function 初始化事件监听(): Promise<void> {
         var 存在的tsconfig文件路径 = tsconfig文件路径
 
         const 程序 = 创建程序(存在的tsconfig文件路径, types文件夹路径)
-        // const 类型检查器 = 获得类型检查器(程序)
 
         const 源文件 = 按路径选择源文件(文件路径, 程序)
         if (!源文件) {
@@ -158,6 +160,11 @@ export async function 初始化事件监听(): Promise<void> {
           return
         }
 
+        return
+      }
+      case '停止生成': {
+        await 我的openAI实例.stop()
+        await 侧边栏实例.postMessage({ command: 'AI调用结束' })
         return
       }
     }

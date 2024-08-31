@@ -10,6 +10,9 @@ export type webviewEventW2V =
       command: '应用到代码'
       data: string | null
     }
+  | {
+      command: '停止生成'
+    }
 
 export type webviewEventV2W =
   | {

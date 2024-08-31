@@ -60,9 +60,10 @@
 
     <!-- 按钮部分 -->
     <div style="padding: 10px; box-sizing: border-box; display: flex; justify-content: space-between">
-      <button style="padding: 8px 16px" @click="v_clearMessages" :disabled="v_页面状态 == '等待'">清空聊天</button>
-      <button style="padding: 8px 16px" @click="v_regenerateMessage" :disabled="v_页面状态 == '等待'">重新生成</button>
-      <button style="padding: 8px 16px" @click="v_applyCode" :disabled="v_页面状态 == '等待'">应用到代码</button>
+      <button style="padding: 8px 16px" @click="v_clearMessages" v-if="v_页面状态 == '正常'">清空聊天</button>
+      <button style="padding: 8px 16px" @click="v_regenerateMessage" v-if="v_页面状态 == '正常'">重新生成</button>
+      <button style="padding: 8px 16px" @click="v_applyCode" v-if="v_页面状态 == '正常'">应用到代码</button>
+      <button style="padding: 8px 16px; width: 100%" @click="v_stopGen" v-if="v_页面状态 == '等待'">停止生成</button>
     </div>
 
     <!-- 输入框部分 -->
@@ -257,6 +258,9 @@ var v_clearMessages = async () => {
 }
 var v_applyCode = async () => {
   vscode.postMessage({ command: '应用到代码', data: 对话根节点.获得最近的ts代码() })
+}
+var v_stopGen = async () => {
+  vscode.postMessage({ command: '停止生成' })
 }
 
 var v_setEditButton = async (id: string, show: boolean) => {
