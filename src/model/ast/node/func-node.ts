@@ -11,10 +11,6 @@ export function 通过名称获得函数节点(源文件: ts.SourceFile, 函数�
   return 函数节点 || null
 }
 
-/**
- * {@link 获得所有函数节点}
- * {@link 获得节点范围}
- */
 export function 通过完整位置获得函数节点(源文件: ts.SourceFile, 开始位置: number, 结束位置: number): 函数节点 | null {
   const 所有函数节点 = 获得所有函数节点(源文件)
   for (const 节点 of Object.values(所有函数节点)) {
