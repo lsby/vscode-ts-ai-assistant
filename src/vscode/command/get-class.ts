@@ -104,7 +104,7 @@ export function 类通用提示词(
 ): (string | null)[] {
   引用结果.类型 = 引用结果.类型
     .map((a) => ({ ...a, 类型位置: 转换为相对项目根目录路径(存在的tsconfig文件路径, a.类型位置) }))
-    .filter((a) => !(a.类型位置.includes('..\\node_module\\') || a.类型位置.includes('../node_module/')))
+    .filter((a) => !(a.类型位置.includes('..\\node_modules\\') || a.类型位置.includes('../node_modules/')))
 
   return [
     类说明 ? `它的说明是: ${压缩为一行(类说明)}` : null,
