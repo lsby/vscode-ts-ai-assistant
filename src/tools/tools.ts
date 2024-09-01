@@ -40,7 +40,7 @@ export function 匹配类方法名称(输入字符串: string): string | null {
 }
 
 export function 匹配类(输入字符串: string): string | null {
-  const 正则表达式 = /class\s+(.*?)\s+(?:.*?){/
+  const 正则表达式 = /class\s+(.*)\s*(?:.*?)\{/
   const 匹配结果 = 输入字符串.match(正则表达式)
   return 匹配结果 ? 匹配结果[1] || null : null
 }
