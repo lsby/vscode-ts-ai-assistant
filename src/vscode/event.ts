@@ -7,7 +7,7 @@ import { 通过名称获得函数节点 } from '../model/ast/node/func-node'
 import { 获得节点范围 } from '../model/ast/node/node'
 import { 创建程序, 按路径选择源文件 } from '../model/ast/program'
 import { 我的OpenAI } from '../model/openai'
-import { 匹配函数名, 匹配类, 匹配类方法名称, 获得tsconfig文件路径, 获得types文件夹路径 } from '../tools/tools'
+import { 匹配函数名, 匹配类名, 匹配类方法名称, 获得tsconfig文件路径, 获得types文件夹路径 } from '../tools/tools'
 import { 侧边栏视图提供者 } from './web-view'
 
 export async function 初始化事件监听(): Promise<void> {
@@ -139,7 +139,7 @@ export async function 初始化事件监听(): Promise<void> {
           return
         }
 
-        var 类名 = 匹配类(起点行文本)
+        var 类名 = 匹配类名(起点行文本)
         if (类名) {
           var 类节点 = 通过名称获得类节点(源文件, 类名)
           if (!类节点) {
