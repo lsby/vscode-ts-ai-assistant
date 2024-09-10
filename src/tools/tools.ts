@@ -28,7 +28,7 @@ export async function 获得types文件夹路径(): Promise<string | null> {
 }
 
 export function 匹配函数名(a: string): string | null {
-  return a.match(/function (.*?)\s*[<\(]/)?.[1] || null
+  return a.match(/function (.*?)\s*[<\(]/)?.[1]?.trim() || null
 }
 
 export function 匹配类方法名称(输入字符串: string): string | null {
@@ -36,13 +36,13 @@ export function 匹配类方法名称(输入字符串: string): string | null {
   if (确保不是函数 != null) return null
   const 正则表达式 = /(?:public|private|protected|static)?\s*([^()\s]+)\s*\(/u
   const 匹配结果 = 输入字符串.match(正则表达式)
-  return 匹配结果 ? 匹配结果[1] || null : null
+  return 匹配结果 ? 匹配结果[1]?.trim() || null : null
 }
 
 export function 匹配类名(输入字符串: string): string | null {
   const 正则表达式 = /class\s+(.*)\s*(?:.*)\{/
   const 匹配结果 = 输入字符串.match(正则表达式)
-  return 匹配结果 ? 匹配结果[1] || null : null
+  return 匹配结果 ? 匹配结果[1]?.trim() || null : null
 }
 
 export function 压缩为一行(a: string): string {
