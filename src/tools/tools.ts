@@ -40,9 +40,11 @@ export function 匹配类方法名称(输入字符串: string): string | null {
 }
 
 export function 匹配类名(输入字符串: string): string | null {
-  const 正则表达式 = /class\s+(.*)\s*(?:.*)\{/
-  const 匹配结果 = 输入字符串.match(正则表达式)
-  return 匹配结果 ? 匹配结果[1]?.trim() || null : null
+  const 匹配结果1 = 输入字符串.match(/class\s+(.*?)\s+(.*)\{/)
+  if (匹配结果1) return 匹配结果1[1]?.trim() || null
+  const 匹配结果2 = 输入字符串.match(/class\s+(.*?)\s*\{/)
+  if (匹配结果2) return 匹配结果2[1]?.trim() || null
+  return null
 }
 
 export function 压缩为一行(a: string): string {
