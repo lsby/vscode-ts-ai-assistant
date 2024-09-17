@@ -1,6 +1,6 @@
 import path from 'path'
 import ts from 'typescript'
-import { 按路径选择源文件 } from '../program'
+import { 按路径选择源文件 } from '../program/program'
 import { 节点, 范围 } from '../types/types'
 import { 通过名称获得函数节点 } from './func-node'
 import { 通过名称获得类型节点 } from './type-node'

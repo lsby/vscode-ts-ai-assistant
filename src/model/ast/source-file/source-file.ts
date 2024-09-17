@@ -1,6 +1,6 @@
 import path from 'path'
 import ts from 'typescript'
-import { 函数节点, 类型节点 } from './types/types'
+import { 函数节点, 类型节点 } from '../types/types'
 
 export function 获得源文件们(a: ts.Program): readonly ts.SourceFile[] {
   const 源文件们 = a.getSourceFiles()

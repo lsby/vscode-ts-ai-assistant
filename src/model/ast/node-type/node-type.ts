@@ -1,7 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
-import { 获得直接子节点 } from './node/node'
-import { 类型节点 } from './types/types'
+import { 获得直接子节点 } from '../node/node'
+import { 类型节点 } from '../types/types'
 
 export function 获得类型的节点(类型: ts.Type): 类型节点 | null {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

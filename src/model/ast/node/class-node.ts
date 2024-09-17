@@ -1,6 +1,6 @@
 import ts from 'typescript'
+import { 获得所有类节点 } from '../source-file/source-file.js'
 import { 类方法节点, 类节点, 范围 } from '../types/types.js'
-import { 获得所有类节点 } from './../source-file.js'
 import { 获得节点范围 } from './node.js'
 
 export function 通过名称获得类节点(源文件: ts.SourceFile, 类名: string): 类节点 | null {

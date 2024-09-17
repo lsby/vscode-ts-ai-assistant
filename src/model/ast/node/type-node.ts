@@ -1,7 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
+import { 获得所有类型节点 } from '../source-file/source-file'
 import { 类型节点, 节点 } from '../types/types'
-import { 获得所有类型节点 } from './../source-file.js'
 import { 获得函数形式签名 } from './func-node.js'
 
 export function 通过名称获得类型节点(源文件: ts.SourceFile, 类型名: string): 类型节点 | null {

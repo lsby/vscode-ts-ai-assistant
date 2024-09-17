@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import { 全局变量 } from '../../global/global'
 import { 通过位置获得类节点 } from '../../model/ast/node/class-node'
-import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program'
-import { 获得文件外部引用 } from '../../model/ast/source-file'
+import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program/program'
+import { 获得文件外部引用 } from '../../model/ast/source-file/source-file'
 import { 获得tsconfig文件路径, 获得types文件夹路径 } from '../../tools/tools'
 import { 类通用提示词, 计算类信息 } from './get-class'
 

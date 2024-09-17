@@ -1,6 +1,7 @@
 import ts from 'typescript'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../../global/global'
+import { 获得所有相关类型, 获得类型名称, 获得类型所在文件, 获得类型的节点 } from '../../model/ast/node-type/node-type'
 import {
   获得函数体相关类型,
   获得函数名称,
@@ -12,9 +13,8 @@ import {
 } from '../../model/ast/node/func-node'
 import { 获得节点jsdoc结果 } from '../../model/ast/node/node'
 import { 获得类型定义位置, 获得类型实现, 获得类型节点类型, 通过名称获得类型节点 } from '../../model/ast/node/type-node'
-import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program'
-import { 获得文件外部引用 } from '../../model/ast/source-file'
-import { 获得所有相关类型, 获得类型名称, 获得类型所在文件, 获得类型的节点 } from '../../model/ast/type'
+import { 创建程序, 按路径选择源文件, 获得类型检查器 } from '../../model/ast/program/program'
+import { 获得文件外部引用 } from '../../model/ast/source-file/source-file'
 import { 函数节点, 类型节点 } from '../../model/ast/types/types'
 import { 压缩为一行, 获得tsconfig文件路径, 获得types文件夹路径, 转换为相对项目根目录路径 } from '../../tools/tools'
 

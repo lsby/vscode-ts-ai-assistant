@@ -1,8 +1,7 @@
 import ts from 'typescript'
-import { 获得所有相关类型, 获得类型名称 } from '../type.js'
+import { 获得所有相关类型, 获得类型名称, 解析引用类型名称 } from '../node-type/node-type.js'
+import { 获得所有函数节点 } from '../source-file/source-file.js'
 import { 函数节点, 节点 } from '../types/types.js'
-import { 获得所有函数节点 } from './../source-file.js'
-import { 解析引用类型名称 } from './../type.js'
 import { 获得节点范围 } from './node.js'
 
 export function 获得函数体相关类型(函数节点: 函数节点, 类型检查器: ts.TypeChecker): ts.Type[] {

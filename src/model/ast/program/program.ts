@@ -1,6 +1,6 @@
 import path from 'path'
 import ts from 'typescript'
-import { 是dts文件, 获得源文件们 } from './source-file'
+import { 是dts文件, 获得源文件们 } from '../source-file/source-file'
 
 export function 创建程序(tsconfig路径: string, types路径: string): ts.Program {
   const tsconfig内容 = ts.readConfigFile(tsconfig路径, ts.sys.readFile)
