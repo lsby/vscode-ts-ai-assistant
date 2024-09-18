@@ -1,0 +1,20 @@
+{
+  "name": "playground-ts-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "playground-ts-app": "dist/esm/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.12.10",
+    "tsx": "^4.16.5",
+    "typescript": "^5.4.5"
+  },
+  "packageManager": "pnpm@9.5.0"
+}

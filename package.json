@@ -30,7 +30,8 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "npm run check:all && node esbuild.js --production",
-    "test:base": "npm run check:all && vitest run"
+    "test:base": "vitest run",
+    "test:coverage": "vitest run --coverage && open-cli ./coverage/index.html"
   },
   "contributes": {
     "configuration": {
