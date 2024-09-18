@@ -29,12 +29,6 @@ export function 是函数类型(类型: ts.Type, 类型检查器: ts.TypeChecker
   }
   return false
 }
-export function 是类类型(类型: ts.Type): boolean {
-  if (类型.flags & ts.TypeFlags.Object && (类型 as ts.ObjectType).objectFlags & ts.ObjectFlags.Class) {
-    return true
-  }
-  return false
-}
 
 export function 获得类型名称(类型: ts.Type, 类型检查器: ts.TypeChecker): string {
   return 类型检查器.typeToString(类型)

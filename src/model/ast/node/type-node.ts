@@ -1,7 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
 import { 获得所有类型节点 } from '../source-file/source-file'
-import { 类型节点, 节点 } from '../types/types'
+import { 类型节点 } from '../types/types'
 import { 获得函数形式签名 } from './func-node.js'
 
 export function 通过名称获得类型节点(源文件: ts.SourceFile, 类型名: string): 类型节点 | null {
@@ -50,11 +50,4 @@ export function 获得类型定义位置(a: 类型节点): string {
 
 export function 获得类型节点类型(类型节点: ts.Node, 类型检查器: ts.TypeChecker): ts.Type {
   return 类型检查器.getTypeAtLocation(类型节点)
-}
-
-export function 是类型节点(a: 节点): a is 类型节点 {
-  if (ts.isTypeAliasDeclaration(a) || ts.isInterfaceDeclaration(a) || ts.isClassDeclaration(a)) {
-    return true
-  }
-  return false
 }

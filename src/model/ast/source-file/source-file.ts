@@ -9,12 +9,6 @@ export function 获得源文件们(a: ts.Program): readonly ts.SourceFile[] {
 export function 是dts文件(源文件: ts.SourceFile): boolean {
   return 源文件.isDeclarationFile
 }
-export function 获得文件路径(a: ts.SourceFile): string {
-  return path.normalize(a.fileName)
-}
-export function 获得源文件内容(a: ts.SourceFile): string {
-  return a.getFullText()
-}
 export function 获得所有顶层节点(a: ts.SourceFile): Array<ts.Node> {
   const 顶层节点数组: Array<ts.Node> = []
   a.forEachChild((节点) => {
