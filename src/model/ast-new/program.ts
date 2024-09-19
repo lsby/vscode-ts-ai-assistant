@@ -1,7 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
-import { 范围 } from './base/base'
-import { 函数节点, 类节点, 节点 } from './node/node'
+import { 函数节点, 类节点, 节点 } from './node'
+import { 范围 } from './type'
 
 export class 程序 {
   static 创建程序(tsconfig路径: string, types路径: string): 程序 {

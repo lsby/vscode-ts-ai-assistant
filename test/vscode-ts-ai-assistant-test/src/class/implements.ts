@@ -1,8 +1,10 @@
-import { 接口类型 } from '../type/type.js'
+import { 接口类型1, 接口类型1的子项, 枚举类型 } from '../type/type.js'
 
-class 接口类型类 implements 接口类型 {
+export class 实现接口的类 implements 接口类型1 {
   姓名: string
   年龄: number
+  颜色: 枚举类型 = 枚举类型.红色
+  子项: 接口类型1的子项 = { a: 'x', b: 1 }
 
   constructor(姓名: string, 年龄: number) {
     this.姓名 = 姓名
