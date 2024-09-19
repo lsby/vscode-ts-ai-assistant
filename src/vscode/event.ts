@@ -2,12 +2,9 @@ import path from 'path'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../global/global'
-import { 获得类节点方法范围, 通过位置获得类节点, 通过名称获得类节点 } from '../model/ast/node/class-node'
-import { 通过名称获得函数节点 } from '../model/ast/node/func-node'
-import { 获得节点范围 } from '../model/ast/node/node'
-import { 创建程序, 按路径选择源文件 } from '../model/ast/program/program'
+import * as ast from '../model/ast-new/program'
 import { 我的OpenAI } from '../model/openai'
-import { 匹配函数名, 匹配类名, 匹配类方法名称, 获得tsconfig文件路径, 获得types文件夹路径 } from '../tools/tools'
+import { 匹配函数名, 匹配类名, 匹配类方法名, 获得tsconfig文件路径, 获得types文件夹路径 } from '../tools/tools'
 import { 侧边栏视图提供者 } from './web-view'
 
 export async function 初始化事件监听(): Promise<void> {
@@ -72,14 +69,6 @@ export async function 初始化事件监听(): Promise<void> {
         }
         var 存在的tsconfig文件路径 = tsconfig文件路径
 
-        const 程序 = 创建程序(存在的tsconfig文件路径, types文件夹路径)
-
-        const 源文件 = 按路径选择源文件(文件路径, 程序)
-        if (!源文件) {
-          void vscode.window.showInformationMessage('无法找到源文件')
-          throw new Error('无法找到源文件')
-        }
-
         if (开始位置 != 结束位置) {
           var range = new vscode.Range(document.positionAt(开始位置), document.positionAt(结束位置))
           var newText = message.data
@@ -92,15 +81,17 @@ export async function 初始化事件监听(): Promise<void> {
           return
         }
 
+        const 程序 = ast.程序.创建程序(存在的tsconfig文件路径, types文件夹路径)
+
         var 函数名 = 匹配函数名(起点行文本)
         if (函数名) {
-          const 函数节点 = 通过名称获得函数节点(源文件, 函数名)
+          const 函数节点 = 程序.按名称查找函数节点(函数名)
           if (!函数节点) {
             void vscode.window.showInformationMessage('无法找到函数')
             throw new Error('无法找到函数')
           }
 
-          var { start, end } = 获得节点范围(函数节点, 源文件)
+          var { start, end } = 函数节点.获得节点范围()
           var range = new vscode.Range(document.positionAt(start), document.positionAt(end))
           var newText = message.data
 
@@ -112,16 +103,16 @@ export async function 初始化事件监听(): Promise<void> {
           return
         }
 
-        var 类方法名 = 匹配类方法名称(起点行文本)
+        var 类方法名 = 匹配类方法名(起点行文本)
         if (类方法名) {
           var 零点偏移 = document.offsetAt(编辑器.selection.start)
-          var 类节点 = 通过位置获得类节点(源文件, 零点偏移)
-          if (!类节点) {
+          var 可能的类节点 = 程序.按范围查找节点(文件路径, { start: 零点偏移, end: 零点偏移 })?.转换为类节点()
+          if (!可能的类节点) {
             void vscode.window.showInformationMessage('无法找到类节点')
             throw new Error('无法找到类节点')
           }
 
-          var 范围 = 获得类节点方法范围(类节点, 类方法名, 源文件)
+          var 范围 = 可能的类节点.按方法名称获得方法范围(类方法名)
           if (!范围) {
             void vscode.window.showInformationMessage('无法找到类方法')
             throw new Error('无法找到类方法')
@@ -141,13 +132,13 @@ export async function 初始化事件监听(): Promise<void> {
 
         var 类名 = 匹配类名(起点行文本)
         if (类名) {
-          var 类节点 = 通过名称获得类节点(源文件, 类名)
+          var 类节点 = 程序.按名称查找类节点(类名)
           if (!类节点) {
             void vscode.window.showInformationMessage('无法找到类节点')
             throw new Error('无法找到类节点')
           }
 
-          var 类范围 = 获得节点范围(类节点, 源文件)
+          var 类范围 = 类节点.获得节点范围()
           var { start, end } = 类范围
           var range = new vscode.Range(document.positionAt(start), document.positionAt(end))
           var newText = message.data

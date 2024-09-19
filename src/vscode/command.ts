@@ -7,30 +7,17 @@ import { 侧边栏视图提供者 } from './web-view'
 
 export async function genFunc(文件路径: string, 函数名: string): Promise<void> {
   await vscode.commands.executeCommand('workbench.action.files.save')
-  var 提示词 = await 计算函数提示词(文件路径, 函数名, null, false)
+  const 要求 = await vscode.window.showInputBox({ placeHolder: '你想怎样优化这个函数?' })
+  if (要求 == undefined) return
+  var 提示词 = await 计算函数提示词(文件路径, 函数名, 要求)
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
 }
 export async function genFuncPrompt(文件路径: string, 函数名: string): Promise<void> {
   await vscode.commands.executeCommand('workbench.action.files.save')
-  var 提示词 = await 计算函数提示词(文件路径, 函数名, null, false)
-  const 侧边栏实例 = 侧边栏视图提供者.获得实例()
-  await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
-}
-
-export async function genFuncBody(文件路径: string, 函数名: string): Promise<void> {
-  await vscode.commands.executeCommand('workbench.action.files.save')
   const 要求 = await vscode.window.showInputBox({ placeHolder: '你想怎样优化这个函数?' })
   if (要求 == undefined) return
-  var 提示词 = await 计算函数提示词(文件路径, 函数名, 要求, true)
-  var 侧边栏实例 = 侧边栏视图提供者.获得实例()
-  await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
-}
-export async function genFuncPromptBody(文件路径: string, 函数名: string): Promise<void> {
-  await vscode.commands.executeCommand('workbench.action.files.save')
-  const 要求 = await vscode.window.showInputBox({ placeHolder: '你想怎样优化这个函数?' })
-  if (要求 == undefined) return
-  var 提示词 = await 计算函数提示词(文件路径, 函数名, 要求, true)
+  var 提示词 = await 计算函数提示词(文件路径, 函数名, 要求)
   const 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
 }
@@ -73,7 +60,7 @@ export async function genCode(文件路径: string, 开始位置: number, 结束
   await vscode.commands.executeCommand('workbench.action.files.save')
   const 要求 = await vscode.window.showInputBox({ placeHolder: '你想怎样优化这个片段?' })
   if (要求 == undefined) return
-  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求, false)
+  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求)
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
 }
@@ -81,24 +68,7 @@ export async function genCodePrompt(文件路径: string, 开始位置: number, 
   await vscode.commands.executeCommand('workbench.action.files.save')
   const 要求 = await vscode.window.showInputBox({ placeHolder: '你想怎样优化这个片段?' })
   if (要求 == undefined) return
-  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求, false)
-  var 侧边栏实例 = 侧边栏视图提供者.获得实例()
-  await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
-}
-
-export async function genQuestion(文件路径: string, 开始位置: number, 结束位置: number): Promise<void> {
-  await vscode.commands.executeCommand('workbench.action.files.save')
-  const 要求 = await vscode.window.showInputBox({ placeHolder: '你想问什么?' })
-  if (要求 == undefined) return
-  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求, true)
-  var 侧边栏实例 = 侧边栏视图提供者.获得实例()
-  await 侧边栏实例.postMessage({ command: '设置输入框并发送', data: 提示词 })
-}
-export async function genQuestionPrompt(文件路径: string, 开始位置: number, 结束位置: number): Promise<void> {
-  await vscode.commands.executeCommand('workbench.action.files.save')
-  const 要求 = await vscode.window.showInputBox({ placeHolder: '你想问什么?' })
-  if (要求 == undefined) return
-  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求, true)
+  var 提示词 = await 计算优化代码片段提示词(文件路径, 开始位置, 结束位置, 要求)
   var 侧边栏实例 = 侧边栏视图提供者.获得实例()
   await 侧边栏实例.postMessage({ command: '设置输入框', data: 提示词 })
 }

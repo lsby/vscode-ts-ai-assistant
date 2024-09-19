@@ -1,5 +1,6 @@
 import path from 'path'
 import ts from 'typescript'
+import { 路径在node_modules里 } from '../../tools/tools'
 import { 函数节点, 类节点, 节点 } from './node'
 import { 范围 } from './type'
 
@@ -79,5 +80,29 @@ export class 程序 {
     }
 
     return null
+  }
+
+  获得文件引入信息(文件路径: string): { 路径: string; 名称: string }[] {
+    const 引入数组: { 路径: string; 名称: string }[] = []
+
+    var 源文件 = this.程序.getSourceFiles().find((a) => path.normalize(a.fileName) == path.normalize(文件路径))
+    if (!源文件) return []
+
+    const 引入声明 = 源文件.statements.filter(ts.isImportDeclaration)
+
+    for (const 引入声明项 of 引入声明) {
+      const 引入模块名称 = 引入声明项.moduleSpecifier.getText()
+      const 引入符号 = this.类型检查器.getSymbolAtLocation(引入声明项.moduleSpecifier)
+      if (引入符号 && 引入符号.declarations && 引入符号.declarations[0]) {
+        const 引入声明信息 = this.类型检查器.getTypeOfSymbolAtLocation(引入符号, 引入符号.declarations[0])
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        let 引入位置 = 引入声明信息?.symbol.getDeclarations()?.[0]?.getSourceFile().fileName
+        if (引入位置) {
+          引入位置 = path.normalize(引入位置)
+          if (路径在node_modules里(引入位置)) 引入数组.push({ 路径: 引入位置, 名称: 引入模块名称 })
+        }
+      }
+    }
+    return 引入数组
   }
 }

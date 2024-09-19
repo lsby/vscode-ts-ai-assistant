@@ -31,7 +31,7 @@ export function 匹配函数名(a: string): string | null {
   return a.match(/function (.*?)\s*[<\(]/)?.[1]?.trim() || null
 }
 
-export function 匹配类方法名称(输入字符串: string): string | null {
+export function 匹配类方法名(输入字符串: string): string | null {
   var 确保不是函数 = 匹配函数名(输入字符串)
   if (确保不是函数 != null) return null
   const 正则表达式 = /(?:public|private|protected|static)?\s*([^()\s]+)\s*\(/u
@@ -45,6 +45,16 @@ export function 匹配类名(输入字符串: string): string | null {
   const 匹配结果2 = 输入字符串.match(/class\s+(.*?)\s*\{/)
   if (匹配结果2) return 匹配结果2[1]?.trim() || null
   return null
+}
+
+export function 路径在node_modules里(路径: string): boolean {
+  const 分组的路径 = path.normalize(路径).split(path.sep)
+  for (var i = 0; i < 分组的路径.length; i++) {
+    if (分组的路径[i] == 'node_modules') {
+      return true
+    }
+  }
+  return false
 }
 
 export function 压缩为一行(a: string): string {
