@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import path from 'path'
 import ts from 'typescript'
-import { 忽略单双引号比较, 路径在node_modules里, 遍历直接子节点 } from './tools'
+import { 忽略单双引号比较, 路径在node_modules里, 路径是node原生类型, 遍历直接子节点 } from './tools'
 import { JsDoc节点类型, 函数节点类型, 类型信息, 类节点类型, 范围 } from './type'
 
 export class 节点 {
@@ -93,6 +93,9 @@ export class 节点 {
       // 对于二值表达式, 例如(a == b)这样的节点, 跳过
       else if (ts.isBinaryExpression(当前节点)) {
       }
+      // 对于infer推断节点, 例如(infer x)或(...infer xs), 跳过
+      else if (ts.isInferTypeNode(当前节点) || (ts.isRestTypeNode(当前节点) && ts.isInferTypeNode(当前节点.type))) {
+      }
       // 对于属性的某一个字段声明, 例如(type xxx = {yyy:zzz})的(yyy)部分, 跳过
       else if (ts.isPropertySignature(当前节点)) {
       }
@@ -127,7 +130,10 @@ export class 节点 {
         var 原始类型实现 = this.类型检查器.typeToString(类型)
         var 原始类型位置 = path.normalize(当前节点.getSourceFile().fileName)
         // 如果在 node_modules 里, 且深度过大, 则跳过
-        if (当前深度 > conf.node_modules最大深度 && 路径在node_modules里(原始类型位置)) {
+        if (路径在node_modules里(原始类型位置) && 当前深度 > conf.node_modules最大深度) {
+        }
+        // 如果在 node_modules 里, 且是 node 原生类型, 则跳过
+        if (路径在node_modules里(原始类型位置) && 路径是node原生类型(原始类型位置)) {
         }
         // 其他情况, 写入结果
         else {
@@ -144,14 +150,17 @@ export class 节点 {
           var 符号实现 = 声明?.getText()
           var 符号位置 = 声明?.getSourceFile().fileName
           if (!符号位置) continue
+          if (!符号实现) continue
           符号位置 = path.normalize(符号位置)
-          var _存在的符号位置 = 符号位置
 
           // 如果找不到符号, 则跳过
           if (!符号实现 || !符号位置) {
           }
           // 如果在 node_modules 里, 且深度过大, 则跳过
-          else if (当前深度 > conf.node_modules最大深度 && 路径在node_modules里(符号位置)) {
+          if (路径在node_modules里(符号位置) && 当前深度 > conf.node_modules最大深度) {
+          }
+          // 如果在 node_modules 里, 且是 node 原生类型, 则跳过
+          if (路径在node_modules里(符号位置) && 路径是node原生类型(符号位置)) {
           }
           // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
           else if (声明 && ts.isTypeLiteralNode(声明)) {

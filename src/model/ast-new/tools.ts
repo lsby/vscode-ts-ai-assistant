@@ -30,3 +30,6 @@ export function 忽略单双引号比较(字符串a: string, 字符串b: string)
   const 处理后的b = 字符串b.replace(/['"]/g, '"')
   return 处理后的a === 处理后的b
 }
+export function 路径是node原生类型(a: string): boolean {
+  return /@types\/node\/.*\.d\.ts$/.test(a.replaceAll('\\', '/'))
+}
