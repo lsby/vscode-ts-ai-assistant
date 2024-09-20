@@ -26,7 +26,10 @@ export async function 计算函数提示词(文件路径: string, 函数名: str
 
   var jsdoc文本 = 函数节点.获得JsDoc完整文本()
   var 实现 = 函数节点.获得节点全文()
-  var 相关类型 = 函数节点.递归计算相关类型信息({ 解析函数体内部: 全局变量.配置.parseBody })
+  var 相关类型 = 函数节点.递归计算相关类型信息({
+    解析函数体内部: 全局变量.配置.parseBody,
+    node_modules最大深度: 全局变量.配置.nodeModulesMaxDeep,
+  })
   var 头引入 = 程序.获得文件引入信息(文件路径)
 
   var 提示词 = [

@@ -43,7 +43,7 @@ export class 节点 {
     return this.节点.getText()
   }
 
-  递归计算相关类型信息(conf: { 解析函数体内部: boolean }): 类型信息[] {
+  递归计算相关类型信息(conf: { 解析函数体内部: boolean; node_modules最大深度: number }): 类型信息[] {
     var 计算相关类型信息 = (
       当前节点: ts.Node,
       当前深度: number,
@@ -51,8 +51,6 @@ export class 节点 {
       已处理结果: Set<string>,
       是jsdoc: boolean,
     ): 类型信息[] => {
-      var 最大深度 = 5
-
       if (已处理节点.has(当前节点)) return []
       已处理节点.add(当前节点)
 
@@ -92,6 +90,9 @@ export class 节点 {
       // 对于(参数名称: 类型)这样的节点, 跳过
       else if (ts.isParameter(当前节点) && 当前节点.type && ts.isTypeReferenceNode(当前节点.type)) {
       }
+      // 对于二值表达式, 例如(a == b)这样的节点, 跳过
+      else if (ts.isBinaryExpression(当前节点)) {
+      }
       // 对于属性的某一个字段声明, 例如(type xxx = {yyy:zzz})的(yyy)部分, 跳过
       else if (ts.isPropertySignature(当前节点)) {
       }
@@ -123,12 +124,16 @@ export class 节点 {
           类型标志 & ts.TypeFlags.Boolean ||
           类型标志 & ts.TypeFlags.Never)
       ) {
-        var 原始类型值 = this.类型检查器.typeToString(类型)
+        var 原始类型实现 = this.类型检查器.typeToString(类型)
         var 原始类型位置 = path.normalize(当前节点.getSourceFile().fileName)
-        if (当前深度 <= 最大深度 || !路径在node_modules里(原始类型位置)) {
-          var 唯一标识 = JSON.stringify({ 节点名称, 原始类型值, 原始类型位置 })
-          if (!已处理结果.has(唯一标识) && !忽略单双引号比较(节点名称, 原始类型值)) {
-            遍历结果.push({ 节点名称, 实现: 原始类型值, 位置: 原始类型位置, 深度: 当前深度 })
+        // 如果在 node_modules 里, 且深度过大, 则跳过
+        if (当前深度 > conf.node_modules最大深度 && 路径在node_modules里(原始类型位置)) {
+        }
+        // 其他情况, 写入结果
+        else {
+          var 唯一标识 = JSON.stringify({ 节点名称, 原始类型值: 原始类型实现, 原始类型位置 })
+          if (!已处理结果.has(唯一标识) && !忽略单双引号比较(节点名称, 原始类型实现) && 节点名称 != 原始类型实现) {
+            遍历结果.push({ 节点名称, 实现: 原始类型实现, 位置: 原始类型位置, 深度: 当前深度 })
             已处理结果.add(唯一标识)
           }
         }
@@ -138,13 +143,15 @@ export class 节点 {
         for (var 声明 of 类型符号声明们) {
           var 符号实现 = 声明?.getText()
           var 符号位置 = 声明?.getSourceFile().fileName
-          if (符号位置) 符号位置 = path.normalize(符号位置)
+          if (!符号位置) continue
+          符号位置 = path.normalize(符号位置)
+          var _存在的符号位置 = 符号位置
 
-          // 如果找不到符号, 就什么都不做
+          // 如果找不到符号, 则跳过
           if (!符号实现 || !符号位置) {
           }
-          // 如果在 node_modules 里, 且深度过大, 不写入结果
-          else if (当前深度 > 最大深度 && 路径在node_modules里(符号位置)) {
+          // 如果在 node_modules 里, 且深度过大, 则跳过
+          else if (当前深度 > conf.node_modules最大深度 && 路径在node_modules里(符号位置)) {
           }
           // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
           else if (声明 && ts.isTypeLiteralNode(声明)) {

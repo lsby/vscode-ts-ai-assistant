@@ -34,7 +34,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用接口1')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -45,7 +48,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用接口2')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('c: string'))
   })
@@ -56,7 +62,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用函数')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string'))
   })
@@ -67,7 +76,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用联合')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string'))
   })
@@ -78,7 +90,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用元组')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string'))
   })
@@ -89,7 +104,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用枚举')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('蓝色'))
   })
@@ -100,7 +118,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用别名')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string'))
   })
@@ -111,7 +132,10 @@ describe('函数测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得函数名() == '函数引用jsdoc')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string'))
   })
@@ -124,7 +148,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '带私有属性的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('红色'))
   })
@@ -135,7 +162,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '带静态属性的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('姓名: string') && 相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -146,7 +176,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '引用函数的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -157,7 +190,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '引用联合的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -168,7 +204,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '引用元组的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -179,7 +218,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '引用枚举的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('蓝色'))
   })
@@ -190,7 +232,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '引用别名的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('蓝色'))
   })
@@ -201,7 +246,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '派生类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('红色'))
   })
@@ -212,7 +260,10 @@ describe('类测试', async () => {
     assert(查找结果 != null)
     assert(查找结果.获得类名() == '实现接口的类')
 
-    var 相关类型 = 查找结果.递归计算相关类型信息({ 解析函数体内部: false })
+    var 相关类型 = 查找结果.递归计算相关类型信息({
+      解析函数体内部: false,
+      node_modules最大深度: 5,
+    })
     var 相关类型文本 = JSON.stringify(相关类型)
     assert(相关类型文本.indexOf('a: string') && 相关类型文本.indexOf('c: string') && 相关类型文本.indexOf('蓝色'))
   })

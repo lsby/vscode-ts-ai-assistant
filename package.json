@@ -78,6 +78,11 @@
             "是",
             "否"
           ]
+        },
+        "lsby-vscode-ts-ai-assistant.nodeModulesMaxDeep": {
+          "type": "string",
+          "description": "node_modules中的结果, 保留的最大深度, 超过该深度将不会出现在结果中",
+          "default": "5"
         }
       }
     },
