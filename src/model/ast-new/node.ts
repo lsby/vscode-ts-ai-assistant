@@ -49,6 +49,7 @@ export class 节点 {
       当前深度: number,
       已处理节点: Set<ts.Node>,
       已处理结果: Set<string>,
+      是jsdoc: boolean,
     ): 类型信息[] => {
       var 最大深度 = 5
 
@@ -66,10 +67,7 @@ export class 节点 {
             var 声明 = this.类型检查器.getSymbolAtLocation(评论.name)?.getDeclarations()?.[0]
             if (声明) {
               var 目标节点 = ts.isImportSpecifier(声明) ? 声明.parent.parent.parent.moduleSpecifier : 声明
-              var jsdoc结果 =
-                this.类型检查器
-                  .getSymbolAtLocation(目标节点)
-                  ?.declarations?.flatMap((n) => 计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果)) || []
+              var jsdoc结果 = 计算相关类型信息(目标节点, 当前深度 + 1, 已处理节点, 已处理结果, true)
               遍历结果.push(...jsdoc结果)
             }
           }
@@ -107,12 +105,12 @@ export class 节点 {
       // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
       else if (ts.isTypeLiteralNode(当前节点)) {
       }
-      // 对于函数或方法的整体, 跳过
-      // todo:
-      // 不太好, 对于类还可以, 因为类的整体会给出, 对于单独的函数, 如果把本体过滤掉, 就不知道函数的样子了
-      // 也许应该判断当前用户是在生成类, 方法, 还是函数, 来决定
-      // else if (ts.isFunctionDeclaration(当前节点) || ts.isMethodDeclaration(当前节点)) {
-      // }
+      // 在非jsdoc引用的分析时, 对于函数, 方法, 类, 的整体, 跳过
+      else if (
+        !是jsdoc &&
+        (ts.isFunctionDeclaration(当前节点) || ts.isMethodDeclaration(当前节点) || ts.isClassDeclaration(当前节点))
+      ) {
+      }
       // 对于原始类型, 要特殊处理
       else if (
         类型 &&
@@ -165,7 +163,7 @@ export class 节点 {
       if (解析子节点) {
         // 递归分析当前节点的子节点
         var 子节点结果 = 遍历直接子节点(当前节点, (n) =>
-          计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果),
+          计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果, false),
         ).flat()
         遍历结果.push(...子节点结果)
 
@@ -173,7 +171,7 @@ export class 节点 {
         for (var 符号 of 类型符号声明们) {
           if (!符号) continue
           var 符号节点结果 = 遍历直接子节点(符号, (n) =>
-            计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果),
+            计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果, false),
           ).flat()
           遍历结果.push(...符号节点结果)
         }
@@ -183,7 +181,7 @@ export class 节点 {
     }
 
     var 当前文件路径 = path.normalize(this.节点.getSourceFile().fileName)
-    return 计算相关类型信息(this.节点, 0, new Set<ts.Node>(), new Set<string>()).sort((a, b) => {
+    return 计算相关类型信息(this.节点, 0, new Set<ts.Node>(), new Set<string>(), false).sort((a, b) => {
       if (a.位置 == 当前文件路径 && b.位置 != 当前文件路径) return -1
       if (a.位置 != 当前文件路径 && b.位置 == 当前文件路径) return 1
 
