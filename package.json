@@ -73,7 +73,7 @@
         },
         "lsby-vscode-ts-ai-assistant.parseBody": {
           "type": "string",
-          "description": "解析函数体中的类型信息(token警告)",
+          "description": "解析函数体中的类型信息. (警告: 可能会导致提示词非常长)",
           "default": "no",
           "enum": [
             "yes",
@@ -86,7 +86,7 @@
         },
         "lsby-vscode-ts-ai-assistant.nodeModulesMaxDeep": {
           "type": "string",
-          "description": "node_modules中的结果, 保留的最大深度, 超过该深度将不会出现在结果中",
+          "description": "对于node_modules中的结果, 保留的最大深度, 超过该深度将不会出现在结果中. (警告: 可能会导致提示词非常长)",
           "default": "5"
         }
       }
