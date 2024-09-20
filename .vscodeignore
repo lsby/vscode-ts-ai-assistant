@@ -12,3 +12,8 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+.husky/**
+doc/**
+test/**
+vitest.config.cjs
+esbuild.js
