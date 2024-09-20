@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import path from 'path'
 import ts from 'typescript'
-import { 路径在node_modules里 } from '../../tools/tools'
+import { 忽略单双引号比较, 路径在node_modules里, 遍历直接子节点 } from './tools'
 import { JsDoc节点类型, 函数节点类型, 类型信息, 类节点类型, 范围 } from './type'
 
 export class 节点 {
@@ -23,7 +24,7 @@ export class 节点 {
   }
 
   获得JsDoc节点(): JsDoc节点[] {
-    const jsDocNodes = ts.getJSDocCommentsAndTags(this.节点)
+    var jsDocNodes = ts.getJSDocCommentsAndTags(this.节点)
     return jsDocNodes.map((a) => new JsDoc节点(a, this.类型检查器))
   }
   获得JsDoc完整文本(): string | null {
@@ -42,67 +43,157 @@ export class 节点 {
     return this.节点.getText()
   }
 
-  递归获得相关类型(): 类型信息[] {
-    const 结果: { 节点名称: string; 节点: ts.Node; 类型: ts.Type; 深度: number }[] = []
-    const 已处理节点 = new Set<ts.Node>()
+  递归计算相关类型信息(): 类型信息[] {
+    var 计算相关类型信息 = (
+      当前节点: ts.Node,
+      当前深度: number,
+      已处理节点: Set<ts.Node>,
+      已处理结果: Set<string>,
+    ): 类型信息[] => {
+      var 最大深度 = 5
 
-    const 访问器 = (子节点: ts.Node, 当前深度: number): void => {
-      if (已处理节点.has(子节点)) return
-      已处理节点.add(子节点)
+      if (已处理节点.has(当前节点)) return []
+      已处理节点.add(当前节点)
 
-      const 节点名称 = 子节点.getText()
-      const 类型 = this.类型检查器.getTypeAtLocation(子节点)
-      const 类型节点 = 类型.getSymbol()?.declarations?.[0]
-      const 符号 = this.类型检查器.getSymbolAtLocation(子节点)
-      const 符号节点 = 符号?.declarations?.[0]
-      const jsDoc节点 = new 节点(子节点, this.类型检查器).获得JsDoc节点().map((a) => a.获得jsdoc节点())[0]
+      var 遍历结果: 类型信息[] = []
 
-      结果.push({ 节点名称, 节点: 子节点, 类型, 深度: 当前深度 })
-
-      ts.forEachChild(子节点, (n) => 访问器(n, 当前深度 + 1))
-      if (类型节点) ts.forEachChild(类型节点, (n) => 访问器(n, 当前深度 + 1))
-      if (符号节点) ts.forEachChild(符号节点, (n) => 访问器(n, 当前深度 + 1))
+      // 处理jsdoc
+      var jsDoc节点 = new 节点(当前节点, this.类型检查器).获得JsDoc节点().map((a) => a.获得jsdoc节点())[0]
       if (jsDoc节点 && jsDoc节点.comment) {
         var 评论们 = jsDoc节点.comment
         for (var 评论 of 评论们) {
-          if (typeof 评论 != 'string' && ts.isJSDocLink(评论) && 评论.name) {
-            var 提及内容 = this.类型检查器.getSymbolAtLocation(评论.name)
-            var 声明 = 提及内容?.getDeclarations()?.[0]
-            if (声明 && ts.isImportSpecifier(声明)) {
-              var 目标符号 = this.类型检查器.getSymbolAtLocation(声明.parent.parent.parent.moduleSpecifier)
-              var 符号声明 = 目标符号?.declarations?.[0]
-              if (符号声明) ts.forEachChild(符号声明, (n) => 访问器(n, 当前深度 + 1))
+          if (typeof 评论 !== 'string' && ts.isJSDocLink(评论) && 评论.name) {
+            var 声明 = this.类型检查器.getSymbolAtLocation(评论.name)?.getDeclarations()?.[0]
+            if (声明) {
+              var 目标节点 = ts.isImportSpecifier(声明) ? 声明.parent.parent.parent.moduleSpecifier : 声明
+              var jsdoc结果 =
+                this.类型检查器
+                  .getSymbolAtLocation(目标节点)
+                  ?.declarations?.flatMap((n) => 计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果)) || []
+              遍历结果.push(...jsdoc结果)
             }
-            if (声明) ts.forEachChild(声明, (n) => 访问器(n, 当前深度 + 1))
           }
         }
       }
-    }
 
-    访问器(this.节点, 0)
+      // 获得类型
+      var 节点名称 = 当前节点.getText()
+      var 类型: ts.Type | undefined
+      try {
+        类型 = this.类型检查器.getTypeAtLocation(当前节点)
+      } catch (e) {}
+      var 类型符号声明们 = [类型?.symbol?.declarations?.[0], 类型?.aliasSymbol?.declarations?.[0]]
+      var 类型标志 = 类型?.flags
 
-    let 最终结果: { 节点名称: string; 类型定义: string; 定义位置: string; 深度: number }[] = []
-    const 已处理组合 = new Set<string>()
+      // 有必要时, 将本标记设为假, 以说明不再解析该节点的子节点和子类型节点
+      var 解析子节点 = true
 
-    for (const 项 of 结果) {
-      const 节点名称 = 项.节点名称
-      const 类型定义 = 项.类型.getSymbol()?.declarations?.[0]?.getText()
-      if (!类型定义) continue
-      let 定义位置 = 项.类型.getSymbol()?.declarations?.[0]?.getSourceFile().fileName
-      if (!定义位置) continue
-      定义位置 = path.normalize(定义位置)
-      if (节点名称 == 类型定义) continue
-      var 最大深度 = 5
-      if (项.深度 > 最大深度 && 路径在node_modules里(定义位置)) continue
-
-      const 唯一标识 = `${类型定义}-${定义位置}`
-      if (!已处理组合.has(唯一标识)) {
-        已处理组合.add(唯一标识)
-        最终结果.push({ 节点名称, 类型定义, 定义位置, 深度: 项.深度 })
+      // 对于标识符, 例如(var x = 1)的(x), 跳过
+      if (ts.isIdentifier(当前节点)) {
       }
+      // 对于(参数名称: 类型)这样的节点, 跳过
+      else if (ts.isParameter(当前节点) && 当前节点.type && ts.isTypeReferenceNode(当前节点.type)) {
+      }
+      // 对于属性的某一个字段声明, 例如(type xxx = {yyy:zzz})的(yyy)部分, 跳过
+      else if (ts.isPropertySignature(当前节点)) {
+      }
+      // 对于区块, 例如函数体, 不解析其整体, 也不再继续解析
+      // todo:
+      // 如果需要知道函数体里的各种语句的类型, 那就不应该过滤这个
+      // 也许应该做个参数, 让用户自行决定
+      else if (ts.isBlock(当前节点)) {
+        解析子节点 = false
+      }
+      // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
+      else if (ts.isTypeLiteralNode(当前节点)) {
+      }
+      // 对于函数或方法的整体, 跳过
+      // todo:
+      // 不太好, 对于类还可以, 因为类的整体会给出, 对于单独的函数, 如果把本体过滤掉, 就不知道函数的样子了
+      // 也许应该判断当前用户是在生成类, 方法, 还是函数, 来决定
+      // else if (ts.isFunctionDeclaration(当前节点) || ts.isMethodDeclaration(当前节点)) {
+      // }
+      // 对于原始类型, 要特殊处理
+      else if (
+        类型 &&
+        类型标志 &&
+        (类型标志 & ts.TypeFlags.StringLiteral ||
+          类型标志 & ts.TypeFlags.NumberLiteral ||
+          类型标志 & ts.TypeFlags.BooleanLiteral ||
+          类型标志 & ts.TypeFlags.String ||
+          类型标志 & ts.TypeFlags.Number ||
+          类型标志 & ts.TypeFlags.Boolean ||
+          类型标志 & ts.TypeFlags.Never)
+      ) {
+        var 原始类型值 = this.类型检查器.typeToString(类型)
+        var 原始类型位置 = path.normalize(当前节点.getSourceFile().fileName)
+        if (当前深度 <= 最大深度 || !路径在node_modules里(原始类型位置)) {
+          var 唯一标识 = JSON.stringify({ 节点名称, 原始类型值, 原始类型位置 })
+          if (!已处理结果.has(唯一标识) && !忽略单双引号比较(节点名称, 原始类型值)) {
+            遍历结果.push({ 节点名称, 实现: 原始类型值, 位置: 原始类型位置, 深度: 当前深度 })
+            已处理结果.add(唯一标识)
+          }
+        }
+      }
+      // 其他情况, 获得类型的符号, 然后计算符号的文本
+      else {
+        for (var 声明 of 类型符号声明们) {
+          var 符号实现 = 声明?.getText()
+          var 符号位置 = 声明?.getSourceFile().fileName
+          if (符号位置) 符号位置 = path.normalize(符号位置)
+
+          // 如果找不到符号, 就什么都不做
+          if (!符号实现 || !符号位置) {
+          }
+          // 如果在 node_modules 里, 且深度过大, 不写入结果
+          else if (当前深度 > 最大深度 && 路径在node_modules里(符号位置)) {
+          }
+          // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
+          else if (声明 && ts.isTypeLiteralNode(声明)) {
+          }
+          // 其他情况, 写入结果
+          else {
+            var 唯一标识 = JSON.stringify({ 符号实现, 符号位置 })
+            if (!已处理结果.has(唯一标识) && !忽略单双引号比较(节点名称, 符号位置)) {
+              遍历结果.push({ 节点名称, 实现: 符号实现, 位置: 符号位置, 深度: 当前深度 })
+              已处理结果.add(唯一标识)
+            }
+          }
+        }
+      }
+
+      if (解析子节点) {
+        // 递归分析当前节点的子节点
+        var 子节点结果 = 遍历直接子节点(当前节点, (n) =>
+          计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果),
+        ).flat()
+        遍历结果.push(...子节点结果)
+
+        // 递归分析类型符号的子节点
+        for (var 符号 of 类型符号声明们) {
+          if (!符号) continue
+          var 符号节点结果 = 遍历直接子节点(符号, (n) =>
+            计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果),
+          ).flat()
+          遍历结果.push(...符号节点结果)
+        }
+      }
+
+      return 遍历结果
     }
 
-    return 最终结果
+    var 当前文件路径 = path.normalize(this.节点.getSourceFile().fileName)
+    return 计算相关类型信息(this.节点, 0, new Set<ts.Node>(), new Set<string>()).sort((a, b) => {
+      if (a.位置 == 当前文件路径 && b.位置 != 当前文件路径) return -1
+      if (a.位置 != 当前文件路径 && b.位置 == 当前文件路径) return 1
+
+      if (a.位置 == 当前文件路径 && b.位置 == 当前文件路径) {
+        return a.节点名称.localeCompare(b.节点名称)
+      }
+
+      if (a.位置 == b.位置) return a.节点名称.localeCompare(b.节点名称)
+      return a.位置.localeCompare(b.位置)
+    })
   }
 }
 
@@ -136,16 +227,16 @@ export class 类节点 extends 节点 {
     return this.类节点
   }
   按方法名称获得方法范围(方法名称: string): 范围 | null {
-    const 类节点 = this.获得类节点()
-    const 方法符号 = this.类型检查器.getTypeAtLocation(类节点).getProperty(方法名称)
+    var 类节点 = this.获得类节点()
+    var 方法符号 = this.类型检查器.getTypeAtLocation(类节点).getProperty(方法名称)
 
     if (!方法符号) return null
 
-    const 方法声明 = 方法符号.getDeclarations()?.[0]
+    var 方法声明 = 方法符号.getDeclarations()?.[0]
     if (!方法声明) return null
 
-    const 开始 = 方法声明.getStart()
-    const 结束 = 方法声明.getEnd()
+    var 开始 = 方法声明.getStart()
+    var 结束 = 方法声明.getEnd()
 
     return { start: 开始, end: 结束 }
   }

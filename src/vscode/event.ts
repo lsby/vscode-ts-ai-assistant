@@ -57,8 +57,8 @@ export async function 初始化事件监听(): Promise<void> {
         var 结束位置 = document.offsetAt(编辑器.selection.end)
         var 起点行文本 = document.lineAt(编辑器.selection.active.line).text
 
-        const tsconfig文件路径 = await 获得tsconfig文件路径()
-        const types文件夹路径 = await 获得types文件夹路径()
+        var tsconfig文件路径 = await 获得tsconfig文件路径()
+        var types文件夹路径 = await 获得types文件夹路径()
         if (!tsconfig文件路径) {
           void vscode.window.showInformationMessage('没有找到tsconfig文件')
           throw new Error('没有找到tsconfig文件')
@@ -81,11 +81,11 @@ export async function 初始化事件监听(): Promise<void> {
           return
         }
 
-        const 程序 = ast.程序.创建程序(存在的tsconfig文件路径, types文件夹路径)
+        var 程序 = ast.程序.创建程序(存在的tsconfig文件路径, types文件夹路径)
 
         var 函数名 = 匹配函数名(起点行文本)
         if (函数名) {
-          const 函数节点 = 程序.按名称查找函数节点(函数名)
+          var 函数节点 = 程序.按名称查找函数节点(函数名)
           if (!函数节点) {
             void vscode.window.showInformationMessage('无法找到函数')
             throw new Error('无法找到函数')
