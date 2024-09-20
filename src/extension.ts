@@ -32,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genCodePrompt`, genCodePrompt))
 
   context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider('typescript', new 自定义代码动作提供程序(), {
+    vscode.languages.registerCodeActionsProvider(['typescript', 'typescriptreact'], new 自定义代码动作提供程序(), {
       providedCodeActionKinds: [vscode.CodeActionKind.QuickFix],
     }),
   )

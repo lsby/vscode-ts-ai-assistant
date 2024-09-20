@@ -43,7 +43,7 @@ export class 节点 {
     return this.节点.getText()
   }
 
-  递归计算相关类型信息(): 类型信息[] {
+  递归计算相关类型信息(conf: { 解析函数体内部: boolean }): 类型信息[] {
     var 计算相关类型信息 = (
       当前节点: ts.Node,
       当前深度: number,
@@ -95,11 +95,11 @@ export class 节点 {
       // 对于属性的某一个字段声明, 例如(type xxx = {yyy:zzz})的(yyy)部分, 跳过
       else if (ts.isPropertySignature(当前节点)) {
       }
-      // 对于区块, 例如函数体, 不解析其整体, 也不再继续解析
-      // todo:
-      // 如果需要知道函数体里的各种语句的类型, 那就不应该过滤这个
-      // 也许应该做个参数, 让用户自行决定
-      else if (ts.isBlock(当前节点)) {
+      // 对于某个属性的赋值, 和上面类似, 只是不是定义, 而是赋值, 跳过
+      else if (ts.isPropertyAssignment(当前节点) || ts.isShorthandPropertyAssignment(当前节点)) {
+      }
+      // 对于区块, 例如函数体, 是否要解析取决于传入的配置
+      else if (conf.解析函数体内部 == false && ts.isBlock(当前节点)) {
         解析子节点 = false
       }
       // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
@@ -148,6 +148,9 @@ export class 节点 {
           }
           // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
           else if (声明 && ts.isTypeLiteralNode(声明)) {
+          }
+          // 节点名称完全等于符号实现的, 没有记录的意义, 跳过
+          else if (节点名称 == 符号实现) {
           }
           // 其他情况, 写入结果
           else {

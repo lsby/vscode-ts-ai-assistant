@@ -66,10 +66,18 @@
           "type": "string",
           "description": "自定义的AI角色提示词(更优先)"
         },
-        "lsby-vscode-ts-ai-assistant.otherPrompt": {
+        "lsby-vscode-ts-ai-assistant.parseBody": {
           "type": "string",
-          "default": "",
-          "description": "生成代码时的补充说明"
+          "description": "解析函数体中的类型信息(token警告)",
+          "default": "no",
+          "enum": [
+            "yes",
+            "no"
+          ],
+          "enumDescriptions": [
+            "是",
+            "否"
+          ]
         }
       }
     },
