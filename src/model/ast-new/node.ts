@@ -133,7 +133,7 @@ export class 节点 {
         if (路径在node_modules里(原始类型位置) && 当前深度 > conf.node_modules最大深度) {
         }
         // 如果在 node_modules 里, 且是 node 原生类型, 则跳过
-        if (路径在node_modules里(原始类型位置) && 路径是node原生类型(原始类型位置)) {
+        else if (路径在node_modules里(原始类型位置) && 路径是node原生类型(原始类型位置)) {
         }
         // 其他情况, 写入结果
         else {
@@ -157,10 +157,10 @@ export class 节点 {
           if (!符号实现 || !符号位置) {
           }
           // 如果在 node_modules 里, 且深度过大, 则跳过
-          if (路径在node_modules里(符号位置) && 当前深度 > conf.node_modules最大深度) {
+          else if (路径在node_modules里(符号位置) && 当前深度 > conf.node_modules最大深度) {
           }
           // 如果在 node_modules 里, 且是 node 原生类型, 则跳过
-          if (路径在node_modules里(符号位置) && 路径是node原生类型(符号位置)) {
+          else if (路径在node_modules里(符号位置) && 路径是node原生类型(符号位置)) {
           }
           // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
           else if (声明 && ts.isTypeLiteralNode(声明)) {
