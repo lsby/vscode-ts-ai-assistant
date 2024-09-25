@@ -33,3 +33,6 @@ export function 忽略单双引号比较(字符串a: string, 字符串b: string)
 export function 路径是node原生类型(a: string): boolean {
   return /@types\/node\/.*\.d\.ts$/.test(a.replaceAll('\\', '/'))
 }
+export function 路径是vscode原生类型(a: string): boolean {
+  return /@types\/vscode\/.*\.d\.ts$/.test(a.replaceAll('\\', '/'))
+}
