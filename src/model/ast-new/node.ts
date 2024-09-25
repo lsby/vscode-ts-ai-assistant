@@ -77,7 +77,7 @@ export class 节点 {
       var 类型: ts.Type | undefined
       try {
         类型 = this.类型检查器.getTypeAtLocation(当前节点)
-      } catch (e) {}
+      } catch (_e) {}
       var 类型符号声明们 = [类型?.symbol?.declarations?.[0], 类型?.aliasSymbol?.declarations?.[0]]
       var 类型标志 = 类型?.flags
 
