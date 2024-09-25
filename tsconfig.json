@@ -1,5 +1,5 @@
 {
-  "include": ["src", "test", ".eslintrc.js", "vitest.config.cjs", "esbuild.js", "media/web"],
+  "include": ["src", "test", "eslint.config.mjs", "vitest.config.cjs", "esbuild.js", "media/web"],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
