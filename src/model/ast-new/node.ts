@@ -109,6 +109,15 @@ export class 节点 {
       // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
       else if (ts.isTypeLiteralNode(当前节点)) {
       }
+      // 对于jsx属性, 跳过
+      else if (
+        ts.isJsxAttribute(当前节点) ||
+        ts.isJsxAttributes(当前节点) ||
+        ts.isJsxSpreadAttribute(当前节点) ||
+        ts.isJsxExpression(当前节点) ||
+        ts.isJsxNamespacedName(当前节点)
+      ) {
+      }
       // 在非jsdoc引用的分析时, 对于函数, 方法, 类, 的整体, 跳过
       else if (
         !是jsdoc &&
