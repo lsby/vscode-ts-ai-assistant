@@ -43,13 +43,85 @@ export class 节点 {
     return this.节点.getText()
   }
 
+  private 是基础类型(类型标志: ts.TypeFlags): boolean {
+    return !!(
+      类型标志 & ts.TypeFlags.StringLiteral ||
+      类型标志 & ts.TypeFlags.NumberLiteral ||
+      类型标志 & ts.TypeFlags.BooleanLiteral ||
+      类型标志 & ts.TypeFlags.String ||
+      类型标志 & ts.TypeFlags.Number ||
+      类型标志 & ts.TypeFlags.Boolean ||
+      类型标志 & ts.TypeFlags.Never
+    )
+  }
+  private 计算函数签名(声明: ts.FunctionDeclaration): string {
+    const printer = ts.createPrinter()
+    const declarationWithoutBody = ts.factory.updateFunctionDeclaration(
+      声明,
+      声明.modifiers, // 保留修饰符（如 export、async 等）
+      声明.asteriskToken, // 保留 generator 标记（如果有）
+      声明.name, // 保留函数名
+      声明.typeParameters, // 保留类型参数
+      声明.parameters, // 保留参数列表
+      声明.type, // 保留返回类型
+      undefined, // 这里将函数体设为 undefined，这样只会保留声明部分
+    )
+    return printer.printNode(ts.EmitHint.Unspecified, declarationWithoutBody, 声明.getSourceFile())
+  }
+  private 计算类签名(声明: ts.ClassDeclaration): string {
+    const printer = ts.createPrinter()
+
+    // 遍历类的成员，保留属性和方法签名，不保留方法体
+    const newMembers = 声明.members.map((member) => {
+      if (ts.isMethodDeclaration(member)) {
+        // 对于方法声明，移除方法体
+        return ts.factory.updateMethodDeclaration(
+          member,
+          member.modifiers, // 保留修饰符
+          member.asteriskToken, // 保留 generator 标记（如果有）
+          member.name, // 保留方法名
+          member.questionToken, // 保留可选标记（如果有）
+          member.typeParameters, // 保留类型参数
+          member.parameters, // 保留参数列表
+          member.type, // 保留返回类型
+          undefined, // 移除方法体
+        )
+      } else if (ts.isConstructorDeclaration(member)) {
+        // 对于构造函数声明，移除构造函数体
+        return ts.factory.updateConstructorDeclaration(
+          member,
+          member.modifiers,
+          member.parameters,
+          undefined, // 移除构造函数体
+        )
+      }
+      // 对于属性声明，保留原始形式
+      return member
+    })
+
+    // 更新类声明，保留类名、修饰符、继承等信息，但成员替换为我们处理后的新成员
+    const declarationWithoutMethodBodies = ts.factory.updateClassDeclaration(
+      声明,
+      声明.modifiers, // 保留修饰符
+      声明.name, // 保留类名
+      声明.typeParameters, // 保留类型参数
+      声明.heritageClauses, // 保留继承或实现的类/接口
+      newMembers, // 使用新的成员列表
+    )
+
+    // 打印新的类声明节点
+    const result = printer.printNode(ts.EmitHint.Unspecified, declarationWithoutMethodBodies, 声明.getSourceFile())
+
+    return result
+  }
+
   递归计算相关类型信息(conf: { 解析函数体内部: boolean; node_modules最大深度: number }): 类型信息[] {
     var 计算相关类型信息 = (
       当前节点: ts.Node,
       当前深度: number,
       已处理节点: Set<ts.Node>,
       已处理结果: Set<string>,
-      是jsdoc: boolean,
+      是初始节点: boolean,
     ): 类型信息[] => {
       if (已处理节点.has(当前节点)) return []
       已处理节点.add(当前节点)
@@ -62,10 +134,12 @@ export class 节点 {
         var 评论们 = jsDoc节点.comment
         for (var 评论 of 评论们) {
           if (typeof 评论 !== 'string' && ts.isJSDocLink(评论) && 评论.name) {
-            var 声明 = this.类型检查器.getSymbolAtLocation(评论.name)?.getDeclarations()?.[0]
-            if (声明) {
-              var 目标节点 = ts.isImportSpecifier(声明) ? 声明.parent.parent.parent.moduleSpecifier : 声明
-              var jsdoc结果 = 计算相关类型信息(目标节点, 当前深度 + 1, 已处理节点, 已处理结果, true)
+            var jsdoc声明 = this.类型检查器.getSymbolAtLocation(评论.name)?.getDeclarations()?.[0]
+            if (jsdoc声明) {
+              var 目标节点 = ts.isImportSpecifier(jsdoc声明)
+                ? jsdoc声明.parent.parent.parent.moduleSpecifier
+                : jsdoc声明
+              var jsdoc结果 = 计算相关类型信息(目标节点, 当前深度 + 1, 已处理节点, 已处理结果, false)
               遍历结果.push(...jsdoc结果)
             }
           }
@@ -78,86 +152,77 @@ export class 节点 {
       try {
         类型 = this.类型检查器.getTypeAtLocation(当前节点)
       } catch (_e) {}
-      var 类型符号声明们 = [类型?.symbol?.declarations?.[0], 类型?.aliasSymbol?.declarations?.[0]]
       var 类型标志 = 类型?.flags
 
-      // 有必要时, 将本标记设为假, 以说明不再解析该节点的子节点和子类型节点
-      var 解析子节点 = true
+      // 设置是否分析子节点
+      var 分析当前节点 = true
+      var 分析节点关联类型 = true
+      // 对于函数体等区块, 只有配置了才会深入
+      if (!conf.解析函数体内部 && ts.isBlock(当前节点)) {
+        分析当前节点 = false
+        分析节点关联类型 = false
+      }
+      // 如果不是初始节点, 就不要再深入其他函数或类的内容里了
+      // 对于引用的内容, 只应该看其签名
+      if (!是初始节点 && ts.isBlock(当前节点)) {
+        分析当前节点 = false
+        分析节点关联类型 = false
+      }
 
-      // 对于标识符, 例如(var x = 1)的(x), 跳过
-      if (ts.isIdentifier(当前节点)) {
+      // 设置是否计算当前节点
+      var 处理当前节点 = false
+      var 处理节点关联类型 = false
+      if (ts.isIdentifier(当前节点) || ts.isTypeReferenceNode(当前节点)) {
+        处理当前节点 = true
+        处理节点关联类型 = true
       }
-      // 对于(参数名称: 类型)这样的节点, 跳过
-      else if (ts.isParameter(当前节点) && 当前节点.type && ts.isTypeReferenceNode(当前节点.type)) {
-      }
-      // 对于二值表达式, 例如(a == b)这样的节点, 跳过
-      else if (ts.isBinaryExpression(当前节点)) {
-      }
-      // 对于infer推断节点, 例如(infer x)或(...infer xs), 跳过
-      else if (ts.isInferTypeNode(当前节点) || (ts.isRestTypeNode(当前节点) && ts.isInferTypeNode(当前节点.type))) {
-      }
-      // 对于属性的某一个字段声明, 例如(type xxx = {yyy:zzz})的(yyy)部分, 跳过
-      else if (ts.isPropertySignature(当前节点)) {
-      }
-      // 对于某个属性的赋值, 和上面类似, 只是不是定义, 而是赋值, 跳过
-      else if (ts.isPropertyAssignment(当前节点) || ts.isShorthandPropertyAssignment(当前节点)) {
-      }
-      // 对于区块, 例如函数体, 是否要解析取决于传入的配置
-      else if (conf.解析函数体内部 == false && ts.isBlock(当前节点)) {
-        解析子节点 = false
-      }
-      // 对于非独立的类型声明, 例如(type xxx = {yyy:zzz})的({yyy:zzz})部分, 跳过
-      else if (ts.isTypeLiteralNode(当前节点)) {
-      }
-      // 对于jsx属性, 跳过
-      else if (
-        ts.isJsxAttribute(当前节点) ||
-        ts.isJsxAttributes(当前节点) ||
-        ts.isJsxSpreadAttribute(当前节点) ||
-        ts.isJsxExpression(当前节点) ||
-        ts.isJsxNamespacedName(当前节点)
-      ) {
-      }
-      // 在非jsdoc引用的分析时, 对于函数, 方法, 类, 的整体, 跳过
-      else if (
-        !是jsdoc &&
-        (ts.isFunctionDeclaration(当前节点) || ts.isMethodDeclaration(当前节点) || ts.isClassDeclaration(当前节点))
-      ) {
-      }
-      // 对于原始类型, 要特殊处理
-      else if (
+      // 对于对象属性, 如果是基础类型, 就不用解析了
+      if (
+        (ts.isPropertySignature(当前节点.parent) ||
+          ts.isPropertyDeclaration(当前节点.parent) ||
+          ts.isPropertyAssignment(当前节点.parent) ||
+          ts.isShorthandPropertyAssignment(当前节点.parent)) &&
         类型 &&
         类型标志 &&
-        (类型标志 & ts.TypeFlags.StringLiteral ||
-          类型标志 & ts.TypeFlags.NumberLiteral ||
-          类型标志 & ts.TypeFlags.BooleanLiteral ||
-          类型标志 & ts.TypeFlags.String ||
-          类型标志 & ts.TypeFlags.Number ||
-          类型标志 & ts.TypeFlags.Boolean ||
-          类型标志 & ts.TypeFlags.Never)
+        this.是基础类型(类型标志)
       ) {
-        var 原始类型实现 = this.类型检查器.typeToString(类型)
-        var 原始类型位置 = path.normalize(当前节点.getSourceFile().fileName)
-        // 如果在 node_modules 里, 且深度过大, 则跳过
-        if (路径在node_modules里(原始类型位置) && 当前深度 > conf.node_modules最大深度) {
-        }
-        // 如果在 node_modules 里, 且是 node 原生类型, 则跳过
-        else if (路径在node_modules里(原始类型位置) && 路径是node原生类型(原始类型位置)) {
-        }
-        // 其他情况, 写入结果
-        else {
-          var 唯一标识 = JSON.stringify({ 节点名称, 原始类型值: 原始类型实现, 原始类型位置 })
-          if (!已处理结果.has(唯一标识) && !忽略单双引号比较(节点名称, 原始类型实现) && 节点名称 != 原始类型实现) {
-            遍历结果.push({ 节点名称, 实现: 原始类型实现, 位置: 原始类型位置, 深度: 当前深度 })
-            已处理结果.add(唯一标识)
-          }
-        }
+        处理当前节点 = false
+        处理节点关联类型 = false
       }
-      // 其他情况, 获得类型的符号, 然后计算符号的文本
-      else {
-        for (var 声明 of 类型符号声明们) {
-          var 符号实现 = 声明?.getText()
-          var 符号位置 = 声明?.getSourceFile().fileName
+
+      // 决定需要处理的节点
+      var 需要处理的节点: ts.Node[] = [
+        处理当前节点 ? 当前节点 : null,
+        处理节点关联类型 ? 类型?.symbol?.declarations?.[0] : null,
+        处理节点关联类型 ? 类型?.aliasSymbol?.declarations?.[0] : null,
+      ].filter((a) => a != null)
+
+      if (需要处理的节点.length != 0) {
+        for (var 声明 of 需要处理的节点) {
+          var 符号实现: string | undefined
+          var 符号位置: string | undefined
+
+          // 处理基础类型
+          if (类型 && 类型标志 && this.是基础类型(类型标志)) {
+            符号实现 = this.类型检查器.typeToString(类型)
+            符号位置 = path.normalize(当前节点.getSourceFile().fileName)
+          }
+          // 对于函数节点, 只取签名, 不取实现
+          else if (ts.isFunctionDeclaration(声明)) {
+            符号实现 = this.计算函数签名(声明)
+            符号位置 = 声明?.getSourceFile().fileName
+          }
+          // 对于类节点也类似, 只取每个方法的签名, 不取实现
+          else if (ts.isClassDeclaration(声明)) {
+            符号实现 = this.计算类签名(声明)
+            符号位置 = 声明?.getSourceFile().fileName
+          }
+          // 其他情况
+          else {
+            符号实现 = 声明?.getText()
+            符号位置 = 声明?.getSourceFile().fileName
+          }
+
           if (!符号位置) continue
           if (!符号实现) continue
           符号位置 = path.normalize(符号位置)
@@ -188,16 +253,15 @@ export class 节点 {
         }
       }
 
-      if (解析子节点) {
-        // 递归分析当前节点的子节点
-        var 子节点结果 = 遍历直接子节点(当前节点, (n) =>
-          计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果, false),
-        ).flat()
-        遍历结果.push(...子节点结果)
+      // 决定需要递归分析的节点
+      var 需要分析的节点: ts.Node[] = [
+        分析当前节点 ? 当前节点 : null,
+        分析节点关联类型 ? 类型?.symbol?.declarations?.[0] : null,
+        分析节点关联类型 ? 类型?.aliasSymbol?.declarations?.[0] : null,
+      ].filter((a) => a != null)
 
-        // 递归分析类型符号的子节点
-        for (var 符号 of 类型符号声明们) {
-          if (!符号) continue
+      if (需要分析的节点.length != 0) {
+        for (var 符号 of 需要分析的节点) {
           var 符号节点结果 = 遍历直接子节点(符号, (n) =>
             计算相关类型信息(n, 当前深度 + 1, 已处理节点, 已处理结果, false),
           ).flat()
@@ -209,7 +273,7 @@ export class 节点 {
     }
 
     var 当前文件路径 = path.normalize(this.节点.getSourceFile().fileName)
-    return 计算相关类型信息(this.节点, 0, new Set<ts.Node>(), new Set<string>(), false).sort((a, b) => {
+    return 计算相关类型信息(this.节点, 0, new Set<ts.Node>(), new Set<string>(), true).sort((a, b) => {
       if (a.位置 == 当前文件路径 && b.位置 != 当前文件路径) return -1
       if (a.位置 != 当前文件路径 && b.位置 == 当前文件路径) return 1
 
