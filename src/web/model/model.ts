@@ -96,7 +96,7 @@ export class 对话 {
     var 当前节点: 对话 | null = this.获得当前最后节点()
 
     while (当前节点 != null) {
-      var match = 当前节点.text.match(/```(ts|typescript)([\s\S]*?)```/)?.[2]
+      var match = 当前节点.text.match(/```(tsx|ts|typescript)([\s\S]*?)```/)?.[2]
       if (match) return match.trim()
       当前节点 = 当前节点.获得父节点()
     }
