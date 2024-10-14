@@ -41,10 +41,12 @@ export function 匹配类方法名(输入字符串: string): string | null {
 }
 
 export function 匹配类名(输入字符串: string): string | null {
-  var 匹配结果1 = 输入字符串.match(/class\s+(.*?)\s+(.*)\{/)
-  if (匹配结果1) return 匹配结果1[1]?.trim() || null
-  var 匹配结果2 = 输入字符串.match(/class\s+(.*?)\s*\{/)
-  if (匹配结果2) return 匹配结果2[1]?.trim() || null
+  var 匹配结果 = 输入字符串.match(/class\s+(.*?)<(.*)>\s+\{/)
+  if (匹配结果) return 匹配结果[1]?.trim() || null
+  var 匹配结果 = 输入字符串.match(/class\s+(.*?)\s+(.*)\{/)
+  if (匹配结果) return 匹配结果[1]?.trim() || null
+  var 匹配结果 = 输入字符串.match(/class\s+(.*?)\s*\{/)
+  if (匹配结果) return 匹配结果[1]?.trim() || null
   return null
 }
 
