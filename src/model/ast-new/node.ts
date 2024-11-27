@@ -324,17 +324,29 @@ export class 类节点 extends 节点 {
   }
   按方法名称获得方法范围(方法名称: string): 范围 | null {
     var 类节点 = this.获得类节点()
-    var 方法符号 = this.类型检查器.getTypeAtLocation(类节点).getProperty(方法名称)
 
-    if (!方法符号) return null
+    for (var 成员 of 类节点.members) {
+      if (ts.isMethodDeclaration(成员) && 成员.name.getText() === 方法名称) {
+        if (成员.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword)) {
+          var 静态方法声明 = 成员
+          var 开始 = 静态方法声明.getStart()
+          var 结束 = 静态方法声明.getEnd()
+          return { start: 开始, end: 结束 }
+        } else {
+          var 实例方法符号 = this.类型检查器.getSymbolAtLocation(成员.name)
+          if (!实例方法符号) return null
 
-    var 方法声明 = 方法符号.getDeclarations()?.[0]
-    if (!方法声明) return null
+          var 实例方法声明 = 实例方法符号.getDeclarations()?.[0]
+          if (!实例方法声明) return null
 
-    var 开始 = 方法声明.getStart()
-    var 结束 = 方法声明.getEnd()
+          var 开始 = 实例方法声明.getStart()
+          var 结束 = 实例方法声明.getEnd()
+          return { start: 开始, end: 结束 }
+        }
+      }
+    }
 
-    return { start: 开始, end: 结束 }
+    return null
   }
 }
 
