@@ -1,4 +1,3 @@
-import path from 'path'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import * as vscode from 'vscode'
 import { 全局变量 } from '../global/global'
@@ -12,7 +11,7 @@ export async function 初始化事件监听(): Promise<void> {
 
   var 我的openAI实例 = new 我的OpenAI({
     apiKey: 全局变量.配置.apiKey,
-    baseUrl: path.join(全局变量.配置.baseUrl, 'v1'),
+    baseUrl: 全局变量.配置.baseUrl,
   })
 
   await 侧边栏实例.setEvent(async (message) => {

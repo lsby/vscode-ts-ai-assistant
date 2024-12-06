@@ -17,6 +17,17 @@ import { 侧边栏视图提供者 } from './vscode/web-view'
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   console.log(`${全局变量.插件名称}: 插件开始运行`)
 
+  // v1统一写在配置里
+  // 但插件之前的配置规则是不要带v1, 为了适配以前的写法, 现在自动添加/v1标志
+  // 会在足够长的时间后去掉
+  const config = vscode.workspace.getConfiguration('lsby-vscode-ts-ai-assistant')
+  let baseUrl = config.get<string>('baseUrl', 'https://api.openai.com/v1')
+  if (baseUrl && !baseUrl.endsWith('/v1')) {
+    baseUrl = baseUrl + '/v1'
+    config.update('baseUrl', baseUrl, vscode.ConfigurationTarget.Global)
+    全局变量.配置.baseUrl += '/v1'
+  }
+
   全局变量.扩展目录 = context.extensionUri
 
   context.subscriptions.push(vscode.commands.registerCommand(`${全局变量.插件名称}.genFunc`, genFunc))

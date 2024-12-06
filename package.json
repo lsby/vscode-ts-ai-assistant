@@ -39,7 +39,7 @@
       "properties": {
         "lsby-vscode-ts-ai-assistant.baseUrl": {
           "type": "string",
-          "default": "https://api.openai.com",
+          "default": "https://api.openai.com/v1",
           "description": "使用的AI服务地址"
         },
         "lsby-vscode-ts-ai-assistant.apiKey": {
