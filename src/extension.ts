@@ -22,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // 会在足够长的时间后去掉
   const config = vscode.workspace.getConfiguration('lsby-vscode-ts-ai-assistant')
   let baseUrl = config.get<string>('baseUrl', 'https://api.openai.com/v1')
-  if ((baseUrl && !baseUrl.endsWith('/v1')) || !baseUrl.endsWith('/v1/')) {
+  if (baseUrl && !(baseUrl.endsWith('/v1') || baseUrl.endsWith('/v1/'))) {
     baseUrl = baseUrl + '/v1'
     config.update('baseUrl', baseUrl, vscode.ConfigurationTarget.Global)
     全局变量.配置.baseUrl += '/v1'
