@@ -41,13 +41,15 @@ export function 匹配类方法名(输入字符串: string): string | null {
 }
 
 export function 匹配类名(输入字符串: string): string | null {
-  var 匹配结果 = 输入字符串.match(/class\s+(.*?)<(.*)>\s+\{/)
-  if (匹配结果) return 匹配结果[1]?.trim() || null
-  var 匹配结果 = 输入字符串.match(/class\s+(.*?)\s+(.*)\{/)
-  if (匹配结果) return 匹配结果[1]?.trim() || null
-  var 匹配结果 = 输入字符串.match(/class\s+(.*?)\s*\{/)
-  if (匹配结果) return 匹配结果[1]?.trim() || null
-  return null
+  // 第一步：用正则匹配类定义部分
+  const 初步匹配 = 输入字符串.match(/class\s+(\S+)/)
+  if (!初步匹配) return null
+
+  // 第二步：提取类名，只考虑空格前的部分
+  const 类名部分 = 初步匹配[1]
+  const 真实类名 = 类名部分?.split(' ')[0]?.split('<')[0]?.trim()
+
+  return 真实类名 || null
 }
 
 export function 压缩为一行(a: string): string {
